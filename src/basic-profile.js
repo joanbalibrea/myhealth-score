@@ -1,3 +1,5 @@
+import { assessmentUrl, setupAvatar } from './assessment.js';
+
 const form = document.querySelector('#profile-form');
 const ageDisplay = document.querySelector('#age-display');
 const decrease = document.querySelector('#decrement-age');
@@ -54,7 +56,7 @@ form.addEventListener('submit', (event) => {
     error.textContent = 'Please complete all required information before continuing.';
     return;
   }
-  if (saveProfile()) window.location.href = 'body-composition.html';
+  if (saveProfile()) window.location.href = assessmentUrl('body-composition.html');
 });
 
 document.querySelectorAll('[data-back]').forEach((button) => {
@@ -64,26 +66,6 @@ document.querySelectorAll('[data-back]').forEach((button) => {
   });
 });
 
-const avatar = document.querySelector('#profile-avatar');
-const avatarInput = document.querySelector('#avatar-input');
-const preview = document.querySelector('#avatar-preview');
-let avatarUrl;
-avatar.hidden = new URLSearchParams(window.location.search).get('mode') === 'quick';
-avatar.addEventListener('click', () => avatarInput.click());
-avatarInput.addEventListener('change', () => {
-  const file = avatarInput.files[0];
-  if (!file || !file.type.startsWith('image/')) return;
-  const nextUrl = URL.createObjectURL(file);
-  const image = new Image();
-  image.onload = () => {
-    if (avatarUrl) URL.revokeObjectURL(avatarUrl);
-    avatarUrl = nextUrl;
-    preview.src = avatarUrl;
-    preview.hidden = false;
-    document.querySelector('#default-avatar').setAttribute('hidden', '');
-  };
-  image.onerror = () => URL.revokeObjectURL(nextUrl);
-  image.src = nextUrl;
-});
+setupAvatar();
 
 updateProfile();
