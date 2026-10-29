@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Sign in to MyHealth Score to track your everyday wellness." />
+    <title>Login / Register | MyHealth Score</title>
+    <link rel="stylesheet" href="../src/style.css" />
+  </head>
+  <body class="login-page">
+    <main class="login-screen">
+      <header class="login-brand">
+        <div class="login-logo" aria-hidden="true">♥<span></span></div>
+        <p class="login-badge">∿ &nbsp; Empathetic Wellness</p>
+        <h1>MyHealth Score</h1>
+        <p class="login-intro">Track your everyday wellness with science-backed lifestyle clarity.</p>
+      </header>
+
+      <nav class="login-access" aria-label="Account access">
+        <button type="button" aria-pressed="true" aria-controls="account-panel" data-access="account">♙ &nbsp; Account Access</button>
+        <button type="button" aria-pressed="false" aria-controls="quick-panel" data-access="quick">Quick Launcher</button>
+      </nav>
+
+      <section class="login-card" aria-label="Login or create an account">
+        <div id="account-panel">
+          <div class="login-modes" role="group" aria-label="Choose account action">
+            <button type="button" aria-pressed="true" aria-controls="login-form" data-mode="login">Sign In</button>
+            <button type="button" aria-pressed="false" aria-controls="register-form" data-mode="register">Create Account</button>
+          </div>
+
+          <form id="login-form">
+            <label for="username">Email or Username</label>
+            <div class="login-field">
+              <span aria-hidden="true">@</span>
+              <input id="username" name="username" type="text" autocomplete="username" placeholder="you@domain.com" required />
+            </div>
+
+            <label for="password">Password</label>
+            <div class="login-field">
+              <span aria-hidden="true">⚿</span>
+              <input id="password" name="password" type="password" autocomplete="current-password" placeholder="Enter your password" required />
+              <button id="show-password" type="button" aria-label="Show password" aria-pressed="false">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+
+            <label class="login-remember"><input type="checkbox" name="remember" /> Keep me synced securely</label>
+            <button class="login-submit" type="submit"><span>Sign In to MyHealth</span><span aria-hidden="true">→</span></button>
+          </form>
+
+          <form id="register-form" hidden>
+            <label for="register-username">Username</label>
+            <div class="login-field">
+              <span aria-hidden="true">@</span>
+              <input id="register-username" name="username" type="text" autocomplete="username" placeholder="Choose a username" required />
+            </div>
+            <label for="register-email">Email</label>
+            <div class="login-field">
+              <span aria-hidden="true">@</span>
+              <input id="register-email" name="email" type="email" autocomplete="email" placeholder="you@domain.com" required />
+            </div>
+            <label for="register-password">Password</label>
+            <div class="login-field">
+              <span aria-hidden="true">⚿</span>
+              <input id="register-password" name="password" type="password" autocomplete="new-password" placeholder="Choose a password" required />
+            </div>
+            <label for="confirm-password">Confirm Password</label>
+            <div class="login-field">
+              <span aria-hidden="true">⚿</span>
+              <input id="confirm-password" name="confirm-password" type="password" autocomplete="new-password" placeholder="Confirm your password" aria-describedby="register-status" required />
+            </div>
+            <p id="register-status" class="login-status" role="alert"></p>
+            <button class="login-submit" type="submit">Create Free Account<span aria-hidden="true">→</span></button>
+          </form>
+        </div>
+        <div id="quick-panel" hidden>
+          <p class="login-quick-intro">Start your MyHealth assessment. Step 1 of 8.</p>
+          <a class="login-submit" href="basic-profile.html">Start Quick Health Recording<span aria-hidden="true">→</span></a>
+        </div>
+      </section>
+
+      <aside class="login-notice" aria-labelledby="wellness-title">
+        <span class="login-shield" aria-hidden="true">✓</span>
+        <div>
+          <h2 id="wellness-title">Educational Wellness Tool</h2>
+          <p>MyHealth Score evaluates holistic lifestyle habits and vitality markers. It is not intended as a medical diagnostic device or clinical treatment substitute.</p>
+        </div>
+      </aside>
+    </main>
+    <script type="module">
+      const password = document.querySelector('#password');
+      const loginForm = document.querySelector('#login-form');
+      const registerForm = document.querySelector('#register-form');
+      const registerPassword = document.querySelector('#register-password');
+      const confirmPassword = document.querySelector('#confirm-password');
+      const status = document.querySelector('#register-status');
+
+      document.querySelectorAll('[data-access]').forEach((button) => {
+        button.addEventListener('click', () => {
+          const quick = button.dataset.access === 'quick';
+          document.querySelectorAll('[data-access]').forEach((tab) => {
+            tab.setAttribute('aria-pressed', String(tab === button));
+          });
+          document.querySelector('#account-panel').hidden = quick;
+          document.querySelector('#quick-panel').hidden = !quick;
+        });
+      });
+
+      document.querySelectorAll('[data-mode]').forEach((button) => {
+        button.addEventListener('click', () => {
+          const registering = button.dataset.mode === 'register';
+          document.querySelectorAll('[data-mode]').forEach((mode) => {
+            mode.setAttribute('aria-pressed', String(mode === button));
+          });
+          loginForm.hidden = registering;
+          registerForm.hidden = !registering;
+        });
+      });
+
+      document.querySelector('#show-password').addEventListener('click', (event) => {
+        const visible = password.type === 'password';
+        password.type = visible ? 'text' : 'password';
+        event.currentTarget.setAttribute('aria-label', visible ? 'Hide password' : 'Show password');
+        event.currentTarget.setAttribute('aria-pressed', String(visible));
+      });
+
+      loginForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        window.location.assign('dashboard.html');
+      });
+
+      registerForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        if (registerPassword.value !== confirmPassword.value) {
+          status.textContent = 'Passwords do not match.';
+          confirmPassword.setAttribute('aria-invalid', 'true');
+          confirmPassword.focus();
+          return;
+        }
+        window.location.assign('dashboard.html');
+      });
+
+      [registerPassword, confirmPassword].forEach((input) => {
+        input.addEventListener('input', () => {
+          status.textContent = '';
+          confirmPassword.removeAttribute('aria-invalid');
+        });
+      });
+    </script>
+  </body>
+</html>

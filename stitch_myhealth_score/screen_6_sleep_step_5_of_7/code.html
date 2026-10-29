@@ -1,0 +1,311 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"><meta content="mobile_stack" name="shell-type"><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@100..900&amp;display=swap" rel="stylesheet"><style>@layer base{html,body{width:100vw;margin:0;padding:0;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "tertiary-fixed": "#e9ddff", "on-primary-fixed": "#00174b", "on-primary": "#ffffff", "outline-variant": "#c3c6d7", "on-tertiary-fixed": "#23005c", "tertiary-fixed-dim": "#d0bcff", "surface-container-high": "#e2e7ff", "surface-bright": "#faf8ff", "on-secondary-fixed-variant": "#005049", "primary-fixed-dim": "#b4c5ff", "surface-container-lowest": "#ffffff", "inverse-primary": "#b4c5ff", "primary-container": "#2563eb", "on-tertiary-container": "#f6edff", "on-error-container": "#93000a", "secondary-container": "#86f2e4", "surface-container-low": "#f2f3ff", "error-container": "#ffdad6", "on-tertiary-fixed-variant": "#5516be", "surface-dim": "#d2d9f4", "secondary-fixed-dim": "#6bd8cb", "surface-variant": "#dae2fd", "surface-container": "#eaedff", "on-secondary": "#ffffff", "on-primary-fixed-variant": "#003ea8", "primary-fixed": "#dbe1ff", "on-primary-container": "#eeefff", "secondary": "#006a61", "tertiary-container": "#7d4ce7", "inverse-surface": "#283044", "secondary-fixed": "#89f5e7", "on-surface-variant": "#434655", "background": "#faf8ff", "error": "#ba1a1a", "on-secondary-container": "#006f66", "tertiary": "#632ecd", "outline": "#737686", "on-surface": "#131b2e", "inverse-on-surface": "#eef0ff", "on-tertiary": "#ffffff", "on-background": "#131b2e", "surface": "#faf8ff", "surface-container-highest": "#dae2fd", "on-secondary-fixed": "#00201d", "primary": "#004ac6", "on-error": "#ffffff", "surface-tint": "#0053db" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "space-lg": "1.5rem", "space-md": "1rem", "gutter-tablet": "1.25rem", "space-xl": "2rem", "gutter": "1rem", "margin": "1rem", "gutter-desktop": "1.5rem", "space-xs": "0.25rem", "margin-desktop": "3rem", "margin-tablet": "2rem", "space-sm": "0.5rem" }, "fontFamily": { "label-sm": ["Plus Jakarta Sans"], "label-lg": ["Plus Jakarta Sans"], "headline-xl": ["Plus Jakarta Sans"], "label-md": ["Plus Jakarta Sans"], "headline-lg": ["Plus Jakarta Sans"], "body-lg": ["Plus Jakarta Sans"], "headline-md": ["Plus Jakarta Sans"], "body-sm": ["Plus Jakarta Sans"], "display-score": ["Plus Jakarta Sans"], "body-md": ["Plus Jakarta Sans"], "display-score-mobile": ["Plus Jakarta Sans"], "headline-xl-mobile": ["Plus Jakarta Sans"], "metric-numeral": ["Plus Jakarta Sans"] }, "fontSize": { "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.04em", "fontWeight": "700" }], "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" }], "headline-xl": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }], "headline-lg": ["22px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "700" }], "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }], "headline-md": ["18px", { "lineHeight": "24px", "fontWeight": "600" }], "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }], "display-score": ["56px", { "lineHeight": "60px", "letterSpacing": "-0.03em", "fontWeight": "800" }], "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }], "display-score-mobile": ["44px", { "lineHeight": "48px", "letterSpacing": "-0.025em", "fontWeight": "800" }], "headline-xl-mobile": ["26px", { "lineHeight": "34px", "letterSpacing": "-0.015em", "fontWeight": "700" }], "metric-numeral": ["28px", { "lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "700" }] } } } };</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface text-on-surface antialiased flex flex-col min-h-screen selection:bg-primary-fixed"><header class="fixed top-0 inset-x-0 z-50 bg-surface/85 backdrop-blur-xl pt-safe shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 px-gutter flex items-center justify-between"><div class="flex items-center gap-space-xs"><button aria-label="Go back" class="w-11 h-11 flex items-center justify-center rounded-full hover:bg-surface-container transition-colors text-on-surface" onclick="history.back()"><span class="material-symbols-outlined text-[22px]">arrow_back</span></button><img alt="MyHealth Score Logo" class="h-7 w-auto object-contain hidden sm:block" src="https://lh3.googleusercontent.com/aida/AEtjO1WUukISVqC6yF4hy9aoWMhxC5Y2_nHMIecm46DmwVq7lL1N7higbsikcM96UfLp48OEyblajLSNTE2DmFQgGqZU_79_QiFbOzJL1v6xGzSmplDrsKrOLmZNxjOEaNBpjOrA5ayHd-Q2igu_rMbbPYDURH4mMTHqVmrtVQBpMWIWKC2QwGgdBBCqz7TVtSkfqEOhI_xxKldgBPdGj_UFrBWZaLs88m5khqBTyYfQrILIKw-65lBv6NXyEyI"><div class="flex flex-col ml-space-xs"><span class="font-headline-md text-headline-md text-on-surface leading-tight">Assessment Flow</span><span class="font-label-sm text-label-sm text-on-surface-variant font-normal leading-none">Assessment Session</span></div></div><div class="flex items-center gap-space-xs"><a aria-label="Exit flow" class="w-11 h-11 flex items-center justify-center rounded-full hover:bg-surface-container transition-colors text-on-surface-variant" data-path="dashboard" href="#"><span class="material-symbols-outlined text-[20px]">close</span></a><img alt="Profile" class="w-8 h-8 rounded-full object-cover ml-space-xs" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDghkeSbvMka6JXWEpwa8ljYq0yeItiln6ZoL38eCAVhJfyYk24WknWiKE_kC35JH5PmitFXPhikb-qaOMUYZH2tP7Vr_Q3VTeMTm0ka5isHdJDTg14k0sIB7HF5YTtZQq-WPaQn-WKfdekGzzAVwTQUCGT14L3ARpwzyBPbKUvPNKVL4xYWlfu47mUCnI2wpKgc3b2ecFuV90NmlxOb8ONqIwEfYkjfUVd-Vc9woALBYSWnmNHWwIB"></div></div></header><main class="flex-1 flex flex-col relative w-full px-gutter pt-16 pb-safe bg-surface"><div class="flex flex-col w-full pb-8">
+<!-- Progress Header -->
+<div class="flex flex-col gap-space-xs mt-2 mb-space-md">
+<div class="flex items-center justify-between text-on-surface-variant">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-tertiary">Step 5 of 8</span>
+<span class="font-label-sm text-label-sm font-semibold text-tertiary">62.5% Completed</span>
+</div>
+<!-- Progress Bar -->
+<div class="w-full h-2 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-tertiary rounded-full transition-all duration-500 ease-out" style="width: 62.5%;"></div>
+</div>
+</div>
+<!-- Screen Identity Header -->
+<div class="flex flex-col mb-space-lg">
+<div class="inline-flex items-center gap-space-xs self-start px-3 py-1 rounded-full bg-tertiary-fixed text-on-tertiary-fixed mb-2">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">bedtime</span>
+<span class="font-label-sm text-label-sm font-bold">Circadian Wellness</span>
+</div>
+<h1 class="font-headline-xl-mobile text-headline-xl-mobile text-on-surface tracking-tight">Sleep</h1>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">Rest and circadian recovery metrics.</p>
+</div>
+<!-- Decorative Mood Banner (Bio-Metric Serenity) -->
+<div class="relative w-full rounded-2xl overflow-hidden bg-gradient-to-r from-tertiary-container to-tertiary text-on-tertiary p-space-md shadow-sm mb-space-lg">
+<div class="relative z-10 flex items-center justify-between">
+<div class="flex flex-col max-w-[70%]">
+<span class="font-label-sm text-label-sm uppercase text-on-tertiary-container font-semibold">Nightly Architecture</span>
+<span class="font-headline-md text-headline-md font-bold mt-0.5">Deep &amp; REM Recovery</span>
+<span class="font-body-sm text-body-sm text-on-tertiary-container/90 mt-1">Quality sleep rebuilds cellular vitality and mental clarity.</span>
+</div>
+<div class="w-16 h-16 rounded-full bg-on-tertiary/15 flex items-center justify-center backdrop-blur-md shadow-inner">
+<span class="material-symbols-outlined text-[34px] text-tertiary-fixed" style="font-variation-settings: 'FILL' 1;">mode_night</span>
+</div>
+</div>
+<div class="absolute -right-6 -bottom-6 w-32 h-32 rounded-full bg-white/10 blur-xl pointer-events-none"></div>
+</div>
+<!-- Question 1: Hours of Sleep -->
+<section class="flex flex-col bg-surface-container-lowest rounded-2xl p-space-lg shadow-sm mb-space-lg">
+<div class="flex items-center justify-between mb-space-sm">
+<div class="flex items-center gap-space-xs">
+<div class="w-8 h-8 rounded-full bg-tertiary-fixed flex items-center justify-center text-on-tertiary-fixed">
+<span class="material-symbols-outlined text-[18px]">timelapse</span>
+</div>
+<span class="font-headline-md text-headline-md text-on-surface">Average sleep duration</span>
+</div>
+<span class="material-symbols-outlined text-outline-variant text-[20px]">info</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-space-lg">Typical uninterrupted hours logged each night.</p>
+<!-- Visual Stepper Dial / Value Showcase -->
+<div class="flex flex-col items-center justify-center py-4 bg-surface-container-low rounded-2xl mb-space-md">
+<div class="flex items-baseline gap-1">
+<span class="font-display-score-mobile text-display-score-mobile text-tertiary font-extrabold tracking-tight" id="hours-display">7.5</span>
+<span class="font-headline-md text-headline-md text-on-surface-variant font-medium">hrs</span>
+</div>
+<div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-highest mt-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px] text-tertiary" style="font-variation-settings: 'FILL' 1;">verified</span>
+<span class="font-label-sm text-label-sm">Target: 7–9 hrs for adults</span>
+</div>
+</div>
+<!-- Stepper Controls & Slider -->
+<div class="flex items-center gap-3 w-full">
+<button aria-label="Decrease sleep hours" class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center text-on-surface hover:bg-surface-container-high active:scale-95 transition-all" id="decrement-btn" type="button">
+<span class="material-symbols-outlined text-[20px]">remove</span>
+</button>
+<div class="relative flex-1 flex items-center">
+<input class="w-full h-2.5 bg-surface-container-highest rounded-full appearance-none cursor-pointer accent-tertiary transition-all" id="hours-slider" max="11.0" min="4.0" step="0.5" type="range" value="7.5">
+</div>
+<button aria-label="Increase sleep hours" class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center text-on-surface hover:bg-surface-container-high active:scale-95 transition-all" id="increment-btn" type="button">
+<span class="material-symbols-outlined text-[20px]">add</span>
+</button>
+</div>
+<!-- Scale Indicators -->
+<div class="flex justify-between items-center px-1 mt-3 text-on-surface-variant font-label-sm text-label-sm">
+<span class="">4.0 hrs</span>
+<span class="">7.0–8.0 (Optimal)</span>
+<span class="">11.0 hrs</span>
+</div>
+</section>
+<!-- Question 2: Sleep Quality Rating -->
+<section class="flex flex-col bg-surface-container-lowest rounded-2xl p-space-lg shadow-sm mb-space-lg">
+<div class="flex items-center justify-between mb-space-sm">
+<div class="flex items-center gap-space-xs">
+<div class="w-8 h-8 rounded-full bg-tertiary-fixed flex items-center justify-center text-on-tertiary-fixed">
+<span class="material-symbols-outlined text-[18px]">hotel</span>
+</div>
+<span class="font-headline-md text-headline-md text-on-surface">Sleep quality rating</span>
+</div>
+<span class="px-2.5 py-0.5 rounded-full bg-tertiary/10 text-tertiary font-label-sm text-label-sm">Scale 1-5</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-space-md">Reflect on how restored you feel upon awakening.</p>
+<!-- 5 Rating Cards Vertical Stack -->
+<div aria-label="Sleep quality scale" class="flex flex-col gap-space-sm" id="quality-selector" role="radiogroup">
+<!-- Option 1: Poor -->
+<button aria-checked="false" class="quality-card flex items-center justify-between p-3.5 rounded-xl bg-surface-container-low hover:bg-surface-container text-left transition-all active:scale-[0.99]" data-rating="1" role="radio" type="button">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant">
+<span class="font-label-lg text-label-lg font-bold">1</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-1.5">
+<span class="font-headline-md text-headline-md text-on-surface">Poor</span>
+<div class="flex text-amber-500">
+<span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Restless / frequent waking</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-[20px] text-outline-variant radio-icon">radio_button_unchecked</span>
+</button>
+<!-- Option 2: Fair -->
+<button aria-checked="false" class="quality-card flex items-center justify-between p-3.5 rounded-xl bg-surface-container-low hover:bg-surface-container text-left transition-all active:scale-[0.99]" data-rating="2" role="radio" type="button">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant">
+<span class="font-label-lg text-label-lg font-bold">2</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-1.5">
+<span class="font-headline-md text-headline-md text-on-surface">Fair</span>
+<div class="flex text-amber-500">
+<span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Light / unrefreshing</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-[20px] text-outline-variant radio-icon">radio_button_unchecked</span>
+</button>
+<!-- Option 3: Good -->
+<button aria-checked="false" class="quality-card flex items-center justify-between p-3.5 rounded-xl bg-surface-container-low hover:bg-surface-container text-left transition-all active:scale-[0.99]" data-rating="3" role="radio" type="button">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant">
+<span class="font-label-lg text-label-lg font-bold">3</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-1.5">
+<span class="font-headline-md text-headline-md text-on-surface">Good</span>
+<div class="flex text-amber-500">
+<span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Average recovery</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-[20px] text-outline-variant radio-icon">radio_button_unchecked</span>
+</button>
+<!-- Option 4: Very Good (Selected State Default) -->
+<button aria-checked="true" class="quality-card flex items-center justify-between p-3.5 rounded-xl bg-tertiary-fixed text-on-tertiary-fixed shadow-sm text-left transition-all active:scale-[0.99]" data-rating="4" role="radio" type="button">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-tertiary text-on-tertiary flex items-center justify-center font-bold">
+<span class="font-label-lg text-label-lg">4</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-1.5">
+<span class="font-headline-md text-headline-md text-on-tertiary-fixed font-bold">Very Good</span>
+<div class="flex text-amber-500">
+<span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+</div>
+<span class="font-body-sm text-body-sm text-on-tertiary-fixed-variant">Restful &amp; energized</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-[22px] text-tertiary radio-icon" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</button>
+<!-- Option 5: Excellent -->
+<button aria-checked="false" class="quality-card flex items-center justify-between p-3.5 rounded-xl bg-surface-container-low hover:bg-surface-container text-left transition-all active:scale-[0.99]" data-rating="5" role="radio" type="button">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant">
+<span class="font-label-lg text-label-lg font-bold">5</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-1.5">
+<span class="font-headline-md text-headline-md text-on-surface">Excellent</span>
+<div class="flex text-amber-500">
+<span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Deep, unbroken sleep</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-[20px] text-outline-variant radio-icon">radio_button_unchecked</span>
+</button>
+</div>
+</section>
+<!-- Educational Insight Note -->
+<div class="flex items-start gap-3 p-4 rounded-xl bg-surface-container-low mb-space-xl">
+<div class="w-8 h-8 rounded-full bg-tertiary-fixed flex items-center justify-center text-on-tertiary-fixed shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[18px]">psychology</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md font-bold text-on-surface">Sleep Hygeine Correlation</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+        Consistency in bedtime improves hormone balance and heart rate variability (HRV) more effectively than total sleep duration alone.
+      </p>
+</div>
+</div>
+<!-- Navigation Action Rail -->
+<div class="flex items-center gap-3 mt-auto pt-2">
+<button class="h-12 px-5 rounded-full bg-surface-container-high hover:bg-surface-variant text-on-surface font-label-lg text-label-lg flex items-center justify-center gap-2 active:scale-95 transition-all" onclick="history.back()" type="button">
+<span class="material-symbols-outlined text-[18px]">arrow_back</span>
+<span class="">Back</span>
+</button>
+<a class="flex-1 h-12 rounded-full bg-tertiary hover:bg-tertiary-container text-on-tertiary font-label-lg text-label-lg flex items-center justify-center gap-2 shadow-sm active:scale-[0.98] transition-all" data-path="step-6-lifestyle" href="#"><span class="">Continue to Mental Health</span><span class="material-symbols-outlined text-[18px]">arrow_forward</span></a>
+</div>
+</div>
+<script>
+  (function initSleepStep() {
+    // Hour stepper logic
+    const slider = document.getElementById('hours-slider');
+    const display = document.getElementById('hours-display');
+    const decrementBtn = document.getElementById('decrement-btn');
+    const incrementBtn = document.getElementById('increment-btn');
+
+    function updateHours(val) {
+      const clamped = Math.min(11, Math.max(4, parseFloat(val)));
+      slider.value = clamped;
+      display.textContent = clamped.toFixed(1);
+    }
+
+    if (slider) {
+      slider.addEventListener('input', (e) => updateHours(e.target.value));
+    }
+    if (decrementBtn) {
+      decrementBtn.addEventListener('click', () => {
+        updateHours(parseFloat(slider.value) - 0.5);
+      });
+    }
+    if (incrementBtn) {
+      incrementBtn.addEventListener('click', () => {
+        updateHours(parseFloat(slider.value) + 0.5);
+      });
+    }
+
+    // Quality card single-select interaction
+    const qualityCards = document.querySelectorAll('.quality-card');
+    qualityCards.forEach(card => {
+      card.addEventListener('click', () => {
+        qualityCards.forEach(c => {
+          c.setAttribute('aria-checked', 'false');
+          c.className = 'quality-card flex items-center justify-between p-3.5 rounded-xl bg-surface-container-low hover:bg-surface-container text-left transition-all active:scale-[0.99]';
+          
+          const numBadge = c.querySelector('div > div:first-child');
+          if (numBadge) {
+            numBadge.className = 'w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant';
+          }
+
+          const title = c.querySelector('div > div:last-child span:first-child');
+          if (title) {
+            title.className = 'font-headline-md text-headline-md text-on-surface';
+          }
+
+          const desc = c.querySelector('div > div:last-child > span:last-child');
+          if (desc) {
+            desc.className = 'font-body-sm text-body-sm text-on-surface-variant';
+          }
+
+          const icon = c.querySelector('.radio-icon');
+          if (icon) {
+            icon.textContent = 'radio_button_unchecked';
+            icon.className = 'material-symbols-outlined text-[20px] text-outline-variant radio-icon';
+            icon.style.fontVariationSettings = "'FILL' 0";
+          }
+        });
+
+        // Set active card
+        card.setAttribute('aria-checked', 'true');
+        card.className = 'quality-card flex items-center justify-between p-3.5 rounded-xl bg-tertiary-fixed text-on-tertiary-fixed shadow-sm text-left transition-all active:scale-[0.99]';
+        
+        const numBadge = card.querySelector('div > div:first-child');
+        if (numBadge) {
+          numBadge.className = 'w-10 h-10 rounded-full bg-tertiary text-on-tertiary flex items-center justify-center font-bold';
+        }
+
+        const title = card.querySelector('div > div:last-child span:first-child');
+        if (title) {
+          title.className = 'font-headline-md text-headline-md text-on-tertiary-fixed font-bold';
+        }
+
+        const desc = card.querySelector('div > div:last-child > span:last-child');
+        if (desc) {
+          desc.className = 'font-body-sm text-body-sm text-on-tertiary-fixed-variant';
+        }
+
+        const icon = card.querySelector('.radio-icon');
+        if (icon) {
+          icon.textContent = 'check_circle';
+          icon.className = 'material-symbols-outlined text-[22px] text-tertiary radio-icon';
+          icon.style.fontVariationSettings = "'FILL' 1";
+        }
+      });
+    });
+  })();
+</script></main>
+
+</body></html>
