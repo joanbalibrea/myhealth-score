@@ -380,3 +380,57 @@ code {
   .login-card { padding: 16px; }
   .login-access > *, .login-modes button { font-size: 13px; }
 }
+
+/* About You assessment: scoped to keep other screens unchanged. */
+.assessment-page { color-scheme: light; background: #faf8ff; color: #131b2e; font: 16px/1.5 Georgia, 'Times New Roman', serif; letter-spacing: normal; min-height: 100svh; }
+.assessment-page * { box-sizing: border-box; }
+.assessment-page [hidden] { display: none !important; }
+.assessment-page button { font: inherit; border: 0; cursor: pointer; }
+.assessment-page :focus-visible { outline: 3px solid #006a61; outline-offset: 4px; }
+.assessment-screen { width: min(100%, 560px); margin: auto; padding: 20px 20px 32px; }
+.assessment-header { display: flex; align-items: center; gap: 10px; margin-bottom: 24px; }
+.assessment-icon-button { display: grid; place-items: center; flex: 0 0 40px; height: 44px; padding: 0; background: transparent; color: #434655; font-size: 28px !important; text-decoration: none; border-radius: 50%; }
+.assessment-header-title { flex: 1; min-width: 0; }
+.assessment-header-title strong { display: block; font-size: 21px; line-height: 1.2; }
+.assessment-header-title span { color: #434655; font-size: 13px; }
+.assessment-avatar { flex: 0 0 40px; width: 40px; height: 40px; border-radius: 50%; background: #e5e7eb; overflow: hidden; padding: 0; }
+.assessment-avatar svg { display: block; width: 100%; height: 100%; fill: #9ca3af; }
+.assessment-avatar img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.assessment-progress { margin-bottom: 24px; }
+.assessment-progress p { color: #004ac6; font-size: 12px; font-weight: bold; letter-spacing: .04em; margin-bottom: 8px; }
+.assessment-progress progress { display: block; width: 100%; height: 8px; border: 0; border-radius: 20px; overflow: hidden; background: #e2e7ff; }
+.assessment-progress progress::-webkit-progress-bar { background: #e2e7ff; border-radius: 20px; }
+.assessment-progress progress::-webkit-progress-value { background: #004ac6; border-radius: 20px; }
+.assessment-progress progress::-moz-progress-bar { background: #004ac6; border-radius: 20px; }
+.assessment-intro { margin-bottom: 26px; }
+.assessment-intro h1 { color: #08060d; font: bold 30px/1.2 Georgia, 'Times New Roman', serif; letter-spacing: -.7px; margin: 0 0 16px; }
+.assessment-intro p { color: #434655; }
+.assessment-card { padding: 20px; border-radius: 20px; background: #fff; margin-bottom: 18px; }
+.assessment-card h2 { display: flex; align-items: center; gap: 14px; color: #131b2e; font: bold 21px/1.3 Georgia, 'Times New Roman', serif; letter-spacing: normal; margin: 0 0 20px; }
+.assessment-section-icon { display: grid; place-items: center; width: 42px; height: 44px; border-radius: 14px; background: #eaedff; color: #004ac6; font: 30px/1 system-ui, sans-serif; }
+.assessment-age-selector { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 22px 18px; border-radius: 16px; background: #f2f3ff; }
+.assessment-age-selector button { width: 52px; height: 52px; border-radius: 50%; background: white; color: #131b2e; font: 28px/1 system-ui, sans-serif; }
+.assessment-age-selector button:disabled { opacity: .35; cursor: not-allowed; }
+.assessment-age-selector output { color: #004ac6; font-size: 50px; font-weight: bold; line-height: 1; }
+.assessment-age-selector div { display: flex; align-items: baseline; gap: 12px; }
+.assessment-age-selector div span { font-size: 21px; font-weight: bold; color: #434655; }
+.assessment-sex-options { display: grid; gap: 10px; }
+.assessment-sex-card { position: relative; display: flex; align-items: center; gap: 18px; padding: 18px; background: #f2f3ff; border: 2px solid transparent; border-radius: 16px; cursor: pointer; }
+.assessment-sex-card input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.assessment-sex-card:has(input:focus-visible) { outline: 3px solid #006a61; outline-offset: 3px; }
+.assessment-sex-card:has(input:checked) { border-color: #004ac6; background: #dbe1ff; }
+.assessment-sex-icon { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: white; color: #004ac6; font: bold 26px/1 system-ui, sans-serif; }
+.assessment-sex-check { margin-left: auto; display: grid; place-items: center; width: 25px; height: 25px; background: #004ac6; color: white; border-radius: 50%; visibility: hidden; }
+.assessment-sex-card:has(input:checked) .assessment-sex-check { visibility: visible; }
+.assessment-info { display: flex; align-items: flex-start; gap: 12px; padding: 16px; margin-top: 20px; border-radius: 14px; background: #f2f3ff; color: #434655; font-size: 14px; line-height: 1.75; }
+.assessment-info > span { color: #004ac6; font: bold 22px/1.5 system-ui, sans-serif; }
+.assessment-info strong { color: #131b2e; }
+.assessment-privacy { display: flex; align-items: center; gap: 14px; padding: 0 12px; margin: 24px 0; text-align: center; color: #434655; font-size: 13px; }
+.assessment-privacy span { color: #006a61; font-size: 26px; }
+.assessment-actions { display: flex; gap: 10px; }
+.assessment-actions button { min-height: 52px; border-radius: 40px; padding: 12px 24px; background: white; color: #131b2e; font-size: 18px; font-weight: bold; }
+.assessment-actions #profile-continue { flex: 1; background: #004ac6; color: white; }
+.assessment-actions #profile-continue[aria-disabled='true'] { background: #dce1f1; color: #666d83; cursor: not-allowed; }
+.assessment-error { color: #ba1a1a; font-size: 14px; margin-bottom: 14px; }
+.assessment-error:empty { display: none; }
+@media (max-width: 360px) { .assessment-screen { padding-inline: 12px; } .assessment-card { padding: 16px; } .assessment-header { gap: 4px; } .assessment-header-title strong { font-size: 18px; } .assessment-age-selector { padding-inline: 12px; } }
