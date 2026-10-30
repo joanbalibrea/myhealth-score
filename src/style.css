@@ -651,3 +651,46 @@ code {
   .mental-options button { padding: 12px; }
   .mental-stress button, .mental-mood button { gap: 10px; }
 }
+
+/* Lifestyle Habits uses muted mustard-gold accents and cream surfaces. */
+.lifestyle-page { background: radial-gradient(ellipse at top right, #f1e5c990, transparent 55%), #fcfaf4; }
+.lifestyle-page .assessment-intro h1, .lifestyle-page .assessment-progress p { color: #80631f; }
+.lifestyle-page .assessment-progress progress,
+.lifestyle-page .assessment-progress progress::-webkit-progress-bar { background: #eee5cf; }
+.lifestyle-page .assessment-progress progress::-webkit-progress-value { background: #96762d; }
+.lifestyle-page .assessment-progress progress::-moz-progress-bar { background: #96762d; }
+.lifestyle-page :focus-visible { outline-color: #80631f; }
+.lifestyle-page .assessment-card h2 { gap: 10px; font-size: 21px; }
+.lifestyle-section-dot { width: 9px; height: 9px; flex-shrink: 0; border-radius: 50%; background: #96762d; }
+.lifestyle-description { color: #6c6250; font-size: 14px; margin: -4px 0 20px; }
+.lifestyle-reference { color: #776e5e; font-size: 12px; margin: -8px 0 20px; }
+.lifestyle-options { display: grid; gap: 10px; }
+.lifestyle-options button { position: relative; min-height: 48px; padding: 14px 14px 14px 40px; border: 2px solid transparent; border-radius: 14px; background: #f8f4e9; color: #493e25; text-align: left; font-size: 15px; line-height: 1.5; }
+.lifestyle-options button::before { content: ''; position: absolute; top: 18px; left: 14px; width: 14px; height: 14px; border: 1px solid #c9bd9f; border-radius: 50%; }
+.lifestyle-options button[aria-pressed='true'] { background: #f1e7cb; border-color: #baa16a; }
+.lifestyle-options button[aria-pressed='true']::before { background: #96762d; border-color: #96762d; box-shadow: inset 0 0 0 3px #f1e7cb; }
+.lifestyle-options strong { display: block; font-weight: normal; }
+.lifestyle-options small { display: block; margin-top: 4px; color: #6c6250; font-size: 13px; }
+.lifestyle-compact { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.lifestyle-compact button { font-size: 13px; }
+.lifestyle-conditional { margin-top: 20px; padding: 16px; border-radius: 16px; background: #fcf9f1; border: 1px solid #eee5cf; }
+.lifestyle-conditional label, .lifestyle-question { display: block; font-size: 14px; font-weight: bold; color: #63512c; }
+.lifestyle-question { margin: 22px 0 12px; }
+.lifestyle-years { margin: 16px 0; color: #80631f; text-align: center; }
+.lifestyle-years output { font-size: 34px; font-weight: bold; }
+.lifestyle-years span { font-size: 14px; }
+.lifestyle-page input[type='range'] { display: block; width: 100%; height: 30px; margin: 0; accent-color: #96762d; cursor: pointer; }
+.lifestyle-range-labels { display: flex; justify-content: space-between; font-size: 12px; color: #776e5e; }
+.lifestyle-clear { padding: 12px 0 0; background: transparent; color: #80631f; text-decoration: underline; font-size: 13px !important; }
+#substance-name { width: 100%; min-width: 0; min-height: 48px; margin-top: 10px; padding: 12px; border: 1px solid #ded2b7; border-radius: 12px; background: white; color: #493e25; font: inherit; }
+.lifestyle-page .lifestyle-actions { margin-top: 26px; }
+.lifestyle-page .lifestyle-actions button { padding-inline: 16px; }
+.lifestyle-page .lifestyle-actions #lifestyle-continue { flex: 1; min-width: 0; display: grid; grid-template-columns: 18px minmax(0, 1fr) 18px; align-items: center; gap: 6px; background: #896b27; color: white; font-size: 16px; line-height: 1.35; }
+#lifestyle-continue > span:first-child { grid-column: 2; text-align: center; }
+#lifestyle-continue > span:last-child { grid-column: 3; text-align: right; }
+@media (max-width: 380px) {
+  .lifestyle-page .lifestyle-actions { flex-direction: column; }
+  .lifestyle-page .lifestyle-actions #lifestyle-continue { flex: auto; }
+  .lifestyle-compact { grid-template-columns: 1fr; }
+  .lifestyle-conditional { padding: 12px; }
+}

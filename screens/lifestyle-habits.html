@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Record your lifestyle habits for your MyHealth assessment." />
+    <title>Lifestyle Habits | MyHealth Score</title>
+    <link rel="stylesheet" href="../src/style.css" />
+  </head>
+  <body class="assessment-page lifestyle-page">
+    <div class="assessment-screen">
+      <header class="assessment-header">
+        <button class="assessment-icon-button" type="button" data-lifestyle-back aria-label="Go back">←</button>
+        <div class="assessment-header-title"><strong>Assessment Flow</strong><span>Assessment Session</span></div>
+        <a class="assessment-icon-button" href="login.html" aria-label="Exit assessment">×</a>
+        <button id="profile-avatar" class="assessment-avatar" type="button" aria-label="Choose profile image" hidden>
+          <svg id="default-avatar" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="14" r="7"/><path d="M7 37v-5a13 13 0 0 1 26 0v5Z"/></svg>
+          <img id="avatar-preview" alt="Your selected profile image" hidden />
+        </button>
+        <input id="avatar-input" type="file" accept="image/*" hidden />
+      </header>
+      <main>
+        <div class="assessment-progress">
+          <p>● &nbsp; STEP 7 OF 8</p>
+          <progress max="8" value="7" aria-label="Assessment progress: step 7 of 8"></progress>
+        </div>
+        <div class="assessment-intro"><h1>Lifestyle Habits</h1><p>Daily lifestyle factors evaluated neutrally, objectively, and free of judgment.</p></div>
+        <form id="lifestyle-form" novalidate>
+          <section class="assessment-card" aria-labelledby="tobacco-heading">
+            <h2 id="tobacco-heading"><span class="lifestyle-section-dot" aria-hidden="true"></span>Tobacco &amp; Nicotine Use</h2>
+            <div class="lifestyle-options" data-lifestyle-group="myhealth_smoking_status" role="group" aria-label="Smoking status">
+              <button type="button" data-value="never" aria-pressed="false">Never Smoked</button>
+              <button type="button" data-value="passive" aria-pressed="false"><strong>Passive / Secondhand Smoke Exposure</strong><small>Regularly exposed to tobacco smoke from household members, friends, or other close contacts.</small></button>
+              <button type="button" data-value="former" aria-pressed="false">Former Smoker</button>
+              <button type="button" data-value="current" aria-pressed="false">Current Smoker</button>
+            </div>
+            <div id="former-fields" class="lifestyle-conditional" hidden>
+              <label for="quit-years">How long ago did you quit smoking?</label>
+              <div data-years-control="myhealth_years_since_quit" data-suffix="years ago">
+                <p class="lifestyle-years"><output for="quit-years">—</output> <span>years ago</span></p>
+                <input id="quit-years" type="range" min="0.1" max="100" step="0.1" value="0.1" aria-label="Years since quitting smoking" aria-valuetext="Unanswered" />
+                <div class="lifestyle-range-labels" aria-hidden="true"><span>0.1 years</span><span data-age-limit>100.0 years</span></div>
+                <button type="button" class="lifestyle-clear" data-clear-years hidden>Clear answer</button>
+              </div>
+            </div>
+            <div id="current-fields" class="lifestyle-conditional" hidden>
+              <label for="smoking-years">How long have you been smoking?</label>
+              <div data-years-control="myhealth_smoking_years" data-suffix="years">
+                <p class="lifestyle-years"><output for="smoking-years">—</output> <span>years</span></p>
+                <input id="smoking-years" type="range" min="0.1" max="100" step="0.1" value="0.1" aria-label="Years smoking" aria-valuetext="Unanswered" />
+                <div class="lifestyle-range-labels" aria-hidden="true"><span>0.1 years</span><span data-age-limit>100.0 years</span></div>
+                <button type="button" class="lifestyle-clear" data-clear-years hidden>Clear answer</button>
+              </div>
+              <p id="cigarettes-heading" class="lifestyle-question">Approximately how many cigarettes do you smoke per day?</p>
+              <div class="lifestyle-options lifestyle-compact" data-lifestyle-group="myhealth_cigarettes_day" role="group" aria-labelledby="cigarettes-heading">
+                <button type="button" data-value="less_than_1" aria-pressed="false">Less than 1 per day</button>
+                <button type="button" data-value="1_5" aria-pressed="false">1–5 per day</button>
+                <button type="button" data-value="6_10" aria-pressed="false">6–10 per day</button>
+                <button type="button" data-value="11_20" aria-pressed="false">11–20 per day</button>
+                <button type="button" data-value="21_30" aria-pressed="false">21–30 per day</button>
+                <button type="button" data-value="more_than_30" aria-pressed="false">More than 30 per day</button>
+              </div>
+            </div>
+          </section>
+          <section class="assessment-card" aria-labelledby="alcohol-heading">
+            <h2 id="alcohol-heading"><span class="lifestyle-section-dot" aria-hidden="true"></span>Alcohol Intake</h2>
+            <p class="lifestyle-description">For reference, one standard drink is approximately 0.36 L of regular beer, 0.15 L of wine, or 0.045 L of spirits. Actual alcohol content varies by beverage.</p>
+            <div class="lifestyle-options" data-lifestyle-group="myhealth_alcohol_week" role="group" aria-label="Alcohol intake per week">
+              <button type="button" data-value="0" aria-pressed="false"><strong>0 drinks / week</strong><small>Non-drinker or abstaining</small></button>
+              <button type="button" data-value="1_3" aria-pressed="false"><strong>1–3 drinks / week</strong><small>Moderate, occasional enjoyment</small></button>
+              <button type="button" data-value="4_7" aria-pressed="false"><strong>4–7 drinks / week</strong><small>Regular light consumption</small></button>
+              <button type="button" data-value="8_plus" aria-pressed="false"><strong>8+ drinks / week</strong><small>Higher frequency intake</small></button>
+            </div>
+          </section>
+          <section class="assessment-card" aria-labelledby="caffeine-heading">
+            <h2 id="caffeine-heading"><span class="lifestyle-section-dot" aria-hidden="true"></span>Caffeine Intake</h2>
+            <p class="lifestyle-description">Include caffeinated drinks and foods such as coffee, tea, energy drinks, cola, and other products containing caffeine.</p>
+            <p class="lifestyle-reference">For reference, one serving can be approximated as one cup of coffee (~0.24 L), although caffeine content varies considerably between products.</p>
+            <div class="lifestyle-options lifestyle-compact" data-lifestyle-group="myhealth_caffeine_day" role="group" aria-label="Caffeinated servings per day">
+              <button type="button" data-value="0" aria-pressed="false">None</button>
+              <button type="button" data-value="less_than_1" aria-pressed="false">Less than 1 serving/day</button>
+              <button type="button" data-value="1" aria-pressed="false">1 serving/day</button>
+              <button type="button" data-value="2" aria-pressed="false">2 servings/day</button>
+              <button type="button" data-value="3" aria-pressed="false">3 servings/day</button>
+              <button type="button" data-value="4_plus" aria-pressed="false">4 or more servings/day</button>
+            </div>
+          </section>
+          <section class="assessment-card" aria-labelledby="substances-heading">
+            <h2 id="substances-heading"><span class="lifestyle-section-dot" aria-hidden="true"></span>Other Substances</h2>
+            <p class="lifestyle-description">Use of recreational, non-prescribed, or other psychoactive substances. You may leave this unanswered or choose not to disclose.</p>
+            <div class="lifestyle-options" data-lifestyle-group="myhealth_other_substances" role="group" aria-label="Other substance use">
+              <button type="button" data-value="prefer_not_to_say" aria-pressed="false">Prefer not to say</button>
+              <button type="button" data-value="no" aria-pressed="false">No</button>
+              <button type="button" data-value="yes" aria-pressed="false">Occasional / Yes</button>
+            </div>
+            <div id="substance-fields" class="lifestyle-conditional" hidden>
+              <label for="substance-name">Specify the substance</label>
+              <input id="substance-name" type="text" maxlength="120" autocomplete="off" />
+              <p id="substance-frequency-heading" class="lifestyle-question">How often do you typically use it?</p>
+              <div class="lifestyle-options" data-lifestyle-group="myhealth_substance_frequency" role="group" aria-labelledby="substance-frequency-heading">
+                <button type="button" data-value="less_than_weekly" aria-pressed="false">Less than once per week</button>
+                <button type="button" data-value="1_weekly" aria-pressed="false">1 time per week</button>
+                <button type="button" data-value="2_3_weekly" aria-pressed="false">2–3 times per week</button>
+                <button type="button" data-value="4_6_weekly" aria-pressed="false">4–6 times per week</button>
+                <button type="button" data-value="daily" aria-pressed="false">Daily / almost daily</button>
+              </div>
+            </div>
+          </section>
+          <p id="lifestyle-storage-status" class="assessment-error" role="status"></p>
+          <div class="assessment-actions lifestyle-actions">
+            <button type="button" data-lifestyle-back>← &nbsp; Back</button>
+            <button id="lifestyle-continue" type="submit"><span>Continue to Vitals</span><span aria-hidden="true">→</span></button>
+          </div>
+        </form>
+      </main>
+    </div>
+    <script type="module" src="../src/lifestyle-habits.js"></script>
+  </body>
+</html>
