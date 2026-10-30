@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Reflect on your stress, mood and support for your MyHealth assessment." />
+    <title>Mental Health | MyHealth Score</title>
+    <link rel="stylesheet" href="../src/style.css" />
+  </head>
+  <body class="assessment-page mental-health-page">
+    <div class="assessment-screen">
+      <header class="assessment-header">
+        <button class="assessment-icon-button" type="button" data-mental-back aria-label="Go back">←</button>
+        <div class="assessment-header-title"><strong>Assessment Flow</strong><span>Assessment Session</span></div>
+        <a class="assessment-icon-button" href="login.html" aria-label="Exit assessment">×</a>
+        <button id="profile-avatar" class="assessment-avatar" type="button" aria-label="Choose profile image" hidden>
+          <svg id="default-avatar" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="14" r="7"/><path d="M7 37v-5a13 13 0 0 1 26 0v5Z"/></svg>
+          <img id="avatar-preview" alt="Your selected profile image" hidden />
+        </button>
+        <input id="avatar-input" type="file" accept="image/*" hidden />
+      </header>
+      <main>
+        <div class="assessment-progress">
+          <p>● &nbsp; STEP 6 OF 8</p>
+          <progress max="8" value="6" aria-label="Assessment progress: step 6 of 8"></progress>
+        </div>
+        <div class="assessment-intro">
+          <h1>Mental Health</h1>
+          <p>Empathetic reflection on your stress, emotional resilience, and headspace.</p>
+        </div>
+        <form id="mental-form" novalidate>
+          <section class="assessment-card" aria-labelledby="stress-heading">
+            <h2 id="stress-heading"><span class="mental-section-dot" aria-hidden="true"></span>Daily Stress Level</h2>
+            <p class="mental-description">How intense or heavy does your day-to-day tension feel lately?</p>
+            <div class="mental-options mental-stress" data-mental-group="myhealth_stress_level" role="group" aria-label="Daily stress level">
+              <button type="button" data-value="1" aria-pressed="false"><span class="mental-level">1</span><span><strong>Very Low</strong><small>Feeling calm and relaxed most of the day, with little perceived pressure.</small></span></button>
+              <button type="button" data-value="2" aria-pressed="false"><span class="mental-level">2</span><span><strong>Low</strong><small>Occasional stress or pressure, but it is generally easy to manage and recover from.</small></span></button>
+              <button type="button" data-value="3" aria-pressed="false"><span class="mental-level">3</span><span><strong>Moderate</strong><small>Noticeable stress during the day that may temporarily affect concentration, mood, or energy.</small></span></button>
+              <button type="button" data-value="4" aria-pressed="false"><span class="mental-level">4</span><span><strong>High</strong><small>Frequent or intense stress that is difficult to disengage from and may interfere with daily wellbeing.</small></span></button>
+              <button type="button" data-value="5" aria-pressed="false"><span class="mental-level">5</span><span><strong>Very High</strong><small>Persistent or overwhelming stress that substantially affects day-to-day functioning or emotional wellbeing.</small></span></button>
+            </div>
+          </section>
+          <section class="assessment-card" aria-labelledby="mood-heading">
+            <h2 id="mood-heading"><span class="mental-section-dot" aria-hidden="true"></span>Mood &amp; Headspace</h2>
+            <p class="mental-description">Your overall emotional tone during the last week.</p>
+            <div class="mental-options mental-mood" data-mental-group="myhealth_mood" role="group" aria-label="Mood and headspace">
+              <button type="button" data-value="positive_energized" aria-pressed="false"><span class="mental-mood-icon" aria-hidden="true">☼</span><span><strong>Mostly positive &amp; energized</strong></span><span class="mental-check" aria-hidden="true">✓</span></button>
+              <button type="button" data-value="balanced_steady" aria-pressed="false"><span class="mental-mood-icon" aria-hidden="true">☺</span><span><strong>Balanced &amp; steady</strong><small>Grounded feelings with good adaptability</small></span><span class="mental-check" aria-hidden="true">✓</span></button>
+              <button type="button" data-value="fluctuating_low" aria-pressed="false"><span class="mental-mood-icon" aria-hidden="true">≋</span><span><strong>Fluctuating / occasionally low</strong></span><span class="mental-check" aria-hidden="true">✓</span></button>
+              <button type="button" data-value="drained_down" aria-pressed="false"><span class="mental-mood-icon" aria-hidden="true">☁</span><span><strong>Persistently drained or down</strong></span><span class="mental-check" aria-hidden="true">✓</span></button>
+            </div>
+          </section>
+          <section class="assessment-card" aria-labelledby="anxiety-heading">
+            <h2 id="anxiety-heading"><span class="mental-section-dot" aria-hidden="true"></span>Anxiety Episodes</h2>
+            <p class="mental-description">How often have you experienced noticeable anxiety, nervousness, or persistent worry during the last week?</p>
+            <div class="mental-options mental-frequency" data-mental-group="myhealth_anxiety_frequency" role="group" aria-label="Anxiety frequency">
+              <button type="button" data-value="rarely_never" aria-pressed="false">Rarely / Never</button>
+              <button type="button" data-value="few_days" aria-pressed="false">A few days a week</button>
+              <button type="button" data-value="most_days" aria-pressed="false">Most days</button>
+              <button type="button" data-value="prefer_not_to_say" aria-pressed="false">Prefer not to say</button>
+            </div>
+          </section>
+          <section class="assessment-card" aria-labelledby="support-heading">
+            <h2 id="support-heading"><span class="mental-section-dot" aria-hidden="true"></span>Support &amp; Wellness History</h2>
+            <p class="mental-description">Previous or current use of professional mental-health support.</p>
+            <div class="mental-options mental-support" data-mental-group="myhealth_support_history" role="group" aria-label="Professional support history">
+              <button type="button" data-value="current_support" aria-pressed="false">Currently receiving therapy or professional support</button>
+              <button type="button" data-value="past_within_2_years" aria-pressed="false">Past support — within the last 2 years</button>
+              <button type="button" data-value="past_2_5_years" aria-pressed="false">Past support — 2–5 years ago</button>
+              <button type="button" data-value="past_5_10_years" aria-pressed="false">Past support — 5–10 years ago</button>
+              <button type="button" data-value="past_over_10_years" aria-pressed="false">Past support — more than 10 years ago</button>
+              <button type="button" data-value="none" aria-pressed="false">None</button>
+              <button type="button" data-value="prefer_not_to_say" aria-pressed="false">Prefer not to say</button>
+            </div>
+          </section>
+          <p id="mental-storage-status" class="assessment-error" role="status"></p>
+          <div class="assessment-actions mental-actions">
+            <button type="button" data-mental-back>← &nbsp; Back</button>
+            <button id="mental-continue" type="submit"><span>Continue to Lifestyle</span><span aria-hidden="true">→</span></button>
+          </div>
+        </form>
+      </main>
+    </div>
+    <script type="module" src="../src/mental-health.js"></script>
+  </body>
+</html>

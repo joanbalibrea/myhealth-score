@@ -615,3 +615,39 @@ code {
   .sleep-page .sleep-actions #sleep-continue { flex: auto; }
   .sleep-quality button { padding: 12px; gap: 10px; }
 }
+
+/* Mental Health uses calm rose accents within the shared assessment shell. */
+.mental-health-page { background: radial-gradient(ellipse at top right, #f7e0e790, transparent 55%), #fdf8fa; }
+.mental-health-page .assessment-intro h1, .mental-health-page .assessment-progress p { color: #98546a; }
+.mental-health-page .assessment-progress progress,
+.mental-health-page .assessment-progress progress::-webkit-progress-bar { background: #f2dfe6; }
+.mental-health-page .assessment-progress progress::-webkit-progress-value { background: #ad687f; }
+.mental-health-page .assessment-progress progress::-moz-progress-bar { background: #ad687f; }
+.mental-health-page :focus-visible { outline-color: #98546a; }
+.mental-health-page .assessment-card h2 { gap: 10px; font-size: 20px; }
+.mental-section-dot { width: 9px; height: 9px; flex-shrink: 0; border-radius: 50%; background: #ad687f; }
+.mental-description { color: #6e5c65; font-size: 14px; margin: -6px 0 20px; }
+.mental-options { display: grid; gap: 10px; }
+.mental-options button { min-height: 44px; padding: 14px; border: 2px solid transparent; border-radius: 16px; background: #faf0f4; color: #45313b; text-align: left; line-height: 1.5; }
+.mental-options button[aria-pressed='true'] { background: #f4e0e8; border-color: #c58c9f; }
+.mental-options strong { display: block; font-size: 16px; font-weight: bold; }
+.mental-options small { display: block; margin-top: 4px; font-size: 14px; color: #6e5c65; }
+.mental-stress button, .mental-mood button { display: flex; align-items: center; gap: 12px; }
+.mental-level, .mental-mood-icon { display: grid; place-items: center; flex: 0 0 36px; height: 36px; border-radius: 50%; background: #f2e0e7; color: #98546a; }
+.mental-mood-icon { border-radius: 12px; font: 23px/1 system-ui, sans-serif; }
+.mental-check { display: grid; place-items: center; flex: 0 0 20px; height: 20px; margin-left: auto; border-radius: 50%; background: #efdee5; color: transparent; font: bold 13px/1 system-ui, sans-serif; }
+.mental-options button[aria-pressed='true'] .mental-check { color: white; background: #ad687f; }
+.mental-frequency { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.mental-frequency button { text-align: center; font-size: 14px; }
+.mental-support button { font-size: 14px; }
+.mental-health-page .mental-actions { margin-top: 26px; }
+.mental-health-page .mental-actions button { padding-inline: 16px; }
+.mental-health-page .mental-actions #mental-continue { flex: 1; min-width: 0; display: grid; grid-template-columns: 18px minmax(0, 1fr) 18px; align-items: center; gap: 6px; background: #a55f77; color: white; font-size: 16px; line-height: 1.35; }
+#mental-continue > span:first-child { grid-column: 2; text-align: center; }
+#mental-continue > span:last-child { grid-column: 3; text-align: right; }
+@media (max-width: 380px) {
+  .mental-health-page .mental-actions { flex-direction: column; }
+  .mental-health-page .mental-actions #mental-continue { flex: auto; }
+  .mental-options button { padding: 12px; }
+  .mental-stress button, .mental-mood button { gap: 10px; }
+}
