@@ -33,20 +33,24 @@ if (assessmentMode === 'quick') {
   try { session = window.sessionStorage; } catch { session = { getItem: () => null }; }
   let name = '';
   try { name = session.getItem('myhealth_recording_name')?.trim() || ''; } catch { /* Date fallback. */ }
-  const current = currentRecording(calculateAssessment(session), name || 'Current Recording', session);
+  const savedOnly = new URLSearchParams(window.location.search).get('source') === 'dashboard';
   let history;
   try { history = validatedHistory(window.localStorage); }
   catch { history = { records: [], unavailable: true }; }
-  const model = buildProgress(history.records, current, name);
-  const currentDisplay = { ...current, name };
+  const empty = { id: 'empty', name: '', date: new Date().toISOString(), overallScore: null, domainScores: Object.fromEntries(DOMAIN_INFO.map((domain) => [domain.id, null])) };
+  const current = savedOnly ? history.records.at(-1) ?? empty : currentRecording(calculateAssessment(session), name, session);
+  const displayName = savedOnly ? current.name : name;
+  const model = buildProgress(history.records, current, displayName);
+  if (savedOnly && !history.records.length) model.records = [];
+  const currentDisplay = { ...current, name: displayName };
   if (history.unavailable) {
     get('history-status').hidden = false;
     get('history-status').textContent = 'Saved history could not be read. Your current assessment is shown; existing history has not been changed.';
   }
   get('current-progress-score').textContent = current.overallScore === null ? 'N/A' : current.overallScore.toFixed(1);
-  get('latest-recording-name').textContent = recordLabel(currentDisplay);
+  get('latest-recording-name').textContent = savedOnly && !history.records.length ? 'No recordings yet' : recordLabel(currentDisplay);
   if (!model.previous) {
-    get('growth-description').append(node('strong', '', 'No past recordings'), node('span', 'progress-first-description', 'This is your first recorded assessment. Future check-ins will appear here for comparison.'));
+    get('growth-description').append(node('strong', '', 'No past recordings'), node('span', 'progress-first-description', savedOnly && !history.records.length ? 'Complete your first health recording to start tracking progress.' : 'This is your first recorded assessment. Future check-ins will appear here for comparison.'));
   } else if (model.delta === null) {
     get('growth-description').textContent = 'An overall comparison is not available because one of the assessments has no overall score.';
   } else {

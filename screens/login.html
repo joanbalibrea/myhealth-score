@@ -88,6 +88,14 @@
       </aside>
     </main>
     <script type="module">
+      import { readProfile, saveProfile } from '../src/profile.js';
+      function enterRegistered(name) {
+        try {
+          saveProfile(localStorage, { ...readProfile(localStorage), name: name.trim() });
+          sessionStorage.setItem('myhealth_registered_session', 'true');
+        } catch { /* Navigation still works if storage is unavailable. */ }
+        window.location.assign('dashboard.html?mode=registered');
+      }
       const password = document.querySelector('#password');
       const loginForm = document.querySelector('#login-form');
       const registerForm = document.querySelector('#register-form');
@@ -126,7 +134,9 @@
 
       loginForm.addEventListener('submit', (event) => {
         event.preventDefault();
-        window.location.assign('dashboard.html');
+        let displayName = document.querySelector('#username').value;
+        try { displayName = readProfile(localStorage).name || displayName; } catch { /* Use entered name. */ }
+        enterRegistered(displayName);
       });
 
       registerForm.addEventListener('submit', (event) => {
@@ -137,7 +147,7 @@
           confirmPassword.focus();
           return;
         }
-        window.location.assign('dashboard.html');
+        enterRegistered(document.querySelector('#register-username').value);
       });
 
       [registerPassword, confirmPassword].forEach((input) => {

@@ -29,7 +29,7 @@ export function validatedHistory(storage) {
     if (!entry || typeof entry !== 'object' || typeof entry.date !== 'string' || !Number.isFinite(Date.parse(entry.date))) return;
     const domainScores = Object.fromEntries(DOMAIN_INFO.map(({ id }) => [id, validScore(entry.domainScores?.[id])]));
     const overallScore = validScore(entry.overallScore);
-    if (overallScore === null && Object.values(domainScores).every((score) => score === null)) return;
+    if (overallScore === null && Object.values(domainScores).every((score) => score === null) && entry.overallScore !== null) return;
     const id = typeof entry.id === 'string' || typeof entry.id === 'number' ? String(entry.id) : `historical-${index}`;
     if (seen.has(id)) return;
     seen.add(id);

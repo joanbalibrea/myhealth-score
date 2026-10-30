@@ -1,11 +1,17 @@
 import { assessmentMode, assessmentUrl, setupAvatar } from './assessment.js';
 import { calculateAssessment, readAssessment, domainHighlights, domainRecommendation, interpretScore } from './scoring.js';
+import { loadResultContext, recordingLabel } from './result-context.js';
+import { dateLabel } from './progress-data.js';
 
 let storage;
 try { storage = window.sessionStorage; } catch { storage = { getItem: () => null }; }
 // Reuse the exact Screen 10 engine without saving history or modifying answers.
-const result = calculateAssessment(storage);
-const answers = readAssessment(storage);
+const recordId = assessmentMode === 'quick' ? null : new URLSearchParams(window.location.search).get('record');
+let historyStorage;
+try { historyStorage = localStorage; } catch { historyStorage = { getItem() { throw new Error('Storage unavailable'); } }; }
+const context = loadResultContext(storage, historyStorage, recordId);
+const result = context.result;
+const answers = context.historical ? null : readAssessment(storage);
 const focusIds = new Set(result.focusTargets.map((domain) => domain.id));
 const get = (id) => document.getElementById(id);
 const domainName = (domain) => domain.id === 'vitals' ? 'Cardiovascular & Vitals' : domain.name;
@@ -66,7 +72,8 @@ result.domains.forEach((domain) => {
     card.append(bar(domain));
     card.append(element('p', 'recommendation-status', interpretScore(domain.score).label));
   }
-  card.append(element('p', 'recommendation-comment', domainRecommendation(domain, answers)));
+  const historicalComment = typeof result.recommendations?.[domain.id] === 'string' ? result.recommendations[domain.id] : domain.score === null ? 'Not enough information was provided to calculate this category.' : 'Detailed answers were not saved with this older recording. Its category score is shown without inventing personalized guidance.';
+  card.append(element('p', 'recommendation-comment', context.historical ? historicalComment : domainRecommendation(domain, answers)));
   get('domain-cards').append(card);
 });
 
@@ -79,6 +86,7 @@ result.alerts.filter((alert) => alert.priority === 'high').forEach((alert) => {
 
 let name = 'Current Recording';
 try { name = storage.getItem('myhealth_recording_name')?.trim() || name; } catch { /* Keep fallback. */ }
-get('recording-name').textContent = assessmentMode === 'quick' ? new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : name;
-document.querySelectorAll('[data-return-results]').forEach((link) => { link.href = assessmentUrl('results.html'); });
+get('recording-name').textContent = context.historical ? recordingLabel(context.record) : assessmentMode === 'quick' ? new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : name === 'Current Recording' ? dateLabel(new Date()) : name;
+if (context.error) get('domain-cards').prepend(element('p', 'assessment-error', context.error));
+document.querySelectorAll('[data-return-results]').forEach((link) => { link.href = assessmentUrl('results.html') + (recordId ? `&record=${encodeURIComponent(recordId)}` : ''); });
 setupAvatar();

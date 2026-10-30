@@ -1,30 +1,47 @@
-export const assessmentMode = new URLSearchParams(window.location.search).get('mode') === 'quick' ? 'quick' : 'registered';
+import { readProfile, saveProfile } from './profile.js';
 
-export function assessmentUrl(screen) {
-  return `${screen}?mode=${assessmentMode}`;
-}
+export const assessmentMode = new URLSearchParams(window.location.search).get('mode') === 'quick' ? 'quick' : 'registered';
+export function assessmentUrl(screen) { return `${screen}?mode=${assessmentMode}`; }
 
 export function setupAvatar() {
-const avatar = document.querySelector('#profile-avatar');
-const avatarInput = document.querySelector('#avatar-input');
-const preview = document.querySelector('#avatar-preview');
-let avatarUrl;
-avatar.hidden = assessmentMode === 'quick';
-avatar.addEventListener('click', () => avatarInput.click());
-avatarInput.addEventListener('change', () => {
-  const file = avatarInput.files[0];
-  if (!file || !file.type.startsWith('image/')) return;
-  const nextUrl = URL.createObjectURL(file);
-  const image = new Image();
-  image.onload = () => {
-    if (avatarUrl) URL.revokeObjectURL(avatarUrl);
-    avatarUrl = nextUrl;
-    preview.src = avatarUrl;
-    preview.hidden = false;
-    document.querySelector('#default-avatar').setAttribute('hidden', '');
-  };
-  image.onerror = () => URL.revokeObjectURL(nextUrl);
-  image.src = nextUrl;
-});
-
+  const avatar = document.querySelector('#profile-avatar');
+  const input = document.querySelector('#avatar-input');
+  if (!avatar || !input) return;
+  avatar.hidden = assessmentMode === 'quick';
+  if (assessmentMode === 'quick') return;
+  function render(source) {
+    const preview = document.querySelector('#avatar-preview');
+    preview.hidden = !source;
+    if (source) preview.src = source;
+    document.querySelector('#default-avatar').toggleAttribute('hidden', Boolean(source));
+    // Dashboard summary avatar is a non-clickable copy of the same profile.
+    document.querySelectorAll('[data-profile-avatar-copy]').forEach((container) => {
+      const image = container.querySelector('img');
+      image.hidden = !source;
+      if (source) image.src = source;
+      container.querySelector('svg').toggleAttribute('hidden', Boolean(source));
+    });
+  }
+  try { render(readProfile(localStorage).avatar); } catch { render(''); }
+  avatar.addEventListener('click', () => input.click());
+  input.addEventListener('change', () => {
+    const file = input.files[0];
+    if (!file || !['image/png', 'image/jpeg', 'image/webp', 'image/gif'].includes(file.type)) return;
+    const reader = new FileReader();
+    reader.addEventListener('load', () => {
+      const image = new Image();
+      image.onload = () => {
+        try {
+          const profile = readProfile(localStorage);
+          saveProfile(localStorage, { ...profile, avatar: reader.result });
+          render(reader.result);
+        } catch {
+          const status = document.querySelector('#profile-status');
+          if (status) status.textContent = 'The profile image could not be saved. Try a smaller image or allow browser storage.';
+        }
+      };
+      image.src = reader.result;
+    });
+    reader.readAsDataURL(file);
+  });
 }

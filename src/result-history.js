@@ -1,3 +1,5 @@
+import { domainRecommendation } from './scoring.js';
+
 // History is separate from scoring so viewing results never saves a recording.
 export function readHistory(storage) {
   const raw = storage.getItem('myhealth_history');
@@ -24,7 +26,14 @@ export function createRecording(result, name, date = new Date(), id = `${Date.no
   return {
     id, name, date: date.toISOString(), overallScore: result.overallScore,
     completeness: result.completeness.percent,
-    domainScores: Object.fromEntries(result.domains.map((domain) => [domain.id, domain.score === null ? null : Math.round(domain.score * 10) / 10])),
+    domainScores: Object.fromEntries(result.domains.map((domain) => [domain.id, domain.score])),
+    domainCoverage: Object.fromEntries(result.domains.map((domain) => [domain.id, domain.coverage])),
+    scoreDetails: result.domains,
+    focusTargets: result.focusTargets.map((domain) => domain.id),
+    insight: result.insight,
+    alerts: result.alerts,
+    recommendations: result.answers ? Object.fromEntries(result.domains.map((domain) => [domain.id, domainRecommendation(domain, result.answers)])) : {},
+    answers: result.answers,
   };
 }
 
@@ -32,7 +41,7 @@ export function createRecording(result, name, date = new Date(), id = `${Date.no
 // metadata is written here; saveRecording remains the only history writer.
 export function currentRecording(result, name, session, now = new Date()) {
   const record = createRecording(result, name, now);
-  const signature = JSON.stringify([name, record.overallScore, record.completeness, record.domainScores]);
+  const signature = JSON.stringify([name, record.overallScore, record.completeness, record.domainScores, record.answers]);
   try {
     const previous = JSON.parse(session.getItem('myhealth_current_result_identity'));
     if (previous?.signature === signature && typeof previous.id === 'string' && Number.isFinite(Date.parse(previous.date))) {

@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+  <head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><title>Settings | MyHealth Score</title><link rel="stylesheet" href="../src/style.css" /></head>
+  <body class="assessment-page results-page progress-page settings-page">
+    <div class="assessment-screen">
+      <header class="assessment-header">
+        <div class="login-logo progress-logo" aria-hidden="true">♥<span></span></div><div class="assessment-header-title"><strong>MyHealth Score</strong><span>Profile Settings</span></div>
+        <button id="profile-avatar" class="assessment-avatar" type="button" aria-label="Choose profile image" hidden><svg id="default-avatar" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="14" r="7"/><path d="M7 37v-5a13 13 0 0 1 26 0v5Z"/></svg><img id="avatar-preview" alt="Your selected profile image" hidden /></button><input id="avatar-input" type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden />
+      </header>
+      <main id="settings-main" hidden>
+        <div class="assessment-intro"><h1>Profile Settings</h1><p>Update your display name and profile image.</p></div>
+        <form id="settings-form" class="assessment-card settings-form"><label for="display-name">Display name</label><input id="display-name" type="text" maxlength="100" autocomplete="nickname" /><button type="submit">Save name</button></form>
+        <section class="assessment-card settings-image"><h2>Profile image</h2><p>Choose a local PNG, JPEG, WebP, or GIF image. Changes are saved on this browser.</p><button id="choose-profile-image" type="button">Choose image</button><button id="remove-profile-image" type="button">Use default avatar</button></section>
+        <p id="profile-status" class="settings-status" role="status"></p>
+        <p class="assessment-card settings-future">Password management will require backend authentication and is not available in this prototype.</p>
+      </main>
+      <p id="settings-quick-message" class="assessment-card" hidden>Profile settings are available in registered mode.</p>
+      <a class="recommendations-bottom-return" href="dashboard.html?mode=registered" id="settings-back">← Back to Dashboard</a>
+    </div>
+    <script type="module" src="../src/settings.js"></script>
+  </body>
+</html>

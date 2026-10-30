@@ -1,17 +1,24 @@
 import { assessmentMode, assessmentUrl, setupAvatar } from './assessment.js';
 import { calculateAssessment, interpretScore } from './scoring.js';
 import { currentRecording, readHistory, previousRecording, saveRecording } from './result-history.js';
+import { loadResultContext, recordingLabel } from './result-context.js';
+import { dateLabel } from './progress-data.js';
 
 const quick = assessmentMode === 'quick';
 const get = (id) => document.getElementById(id);
 // Storage access can itself throw when browser storage is blocked.
 let session;
 try { session = window.sessionStorage; } catch { session = { getItem: () => null }; }
-const result = calculateAssessment(session);
-let recordingName = 'Current Recording';
+const recordId = quick ? null : new URLSearchParams(window.location.search).get('record');
+let historyStorage;
+try { historyStorage = localStorage; } catch { historyStorage = { getItem() { throw new Error('Storage unavailable'); } }; }
+const context = loadResultContext(session, historyStorage, recordId);
+const result = context.result;
+let recordingName = '';
 try { recordingName = session.getItem('myhealth_recording_name')?.trim() || recordingName; } catch { /* Use the fallback. */ }
-get('recording-name').textContent = quick ? new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : recordingName;
-const recording = currentRecording(result, recordingName, session);
+get('recording-name').textContent = context.historical ? recordingLabel(context.record) : quick ? new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : recordingName || dateLabel(new Date());
+const recording = context.historical ? context.record : currentRecording(result, recordingName, session);
+if (context.error) get('results-status').textContent = context.error;
 const score = result.overallScore;
 get('overall-card').dataset.scoreTone = result.interpretation.tone;
 get('overall-score').value = score === null ? '—' : score.toFixed(1);
@@ -19,9 +26,9 @@ get('score-denominator').hidden = score === null;
 get('score-circle').style.strokeDashoffset = score === null ? 100 : 100 - score * 10;
 get('score-interpretation').textContent = result.interpretation.label;
 get('score-description').textContent = result.interpretation.description;
-get('completeness-value').textContent = `${result.completeness.percent}%`;
-get('completeness-progress').value = result.completeness.percent;
-get('completeness-label').textContent = `${result.completeness.label} · ${result.completeness.answered} of ${result.completeness.total} applicable questions answered`;
+get('completeness-value').textContent = result.completeness.percent === null ? 'N/A' : `${result.completeness.percent}%`;
+get('completeness-progress').value = result.completeness.percent ?? 0;
+get('completeness-label').textContent = context.historical ? result.completeness.label : `${result.completeness.label} · ${result.completeness.answered} of ${result.completeness.total} applicable questions answered`;
 
 function domainLabel(domain) {
   const span = document.createElement('span');
@@ -54,6 +61,8 @@ if (result.alerts.length) {
   });
 }
 get('recommendations-link').href = assessmentUrl('scores-and-recommendations.html');
+if (context.historical && context.record) get('recommendations-link').href += `&record=${encodeURIComponent(context.record.id)}`;
+if (context.historical && !context.record) get('recommendations-link').hidden = true;
 get('focus-summary').textContent = score === null ? 'No scored domains available yet' : result.focusTargets.length ? `${result.focusTargets.length} focus target${result.focusTargets.length === 1 ? '' : 's'} highlighted` : 'No priority focus targets';
 result.focusTargets.slice(0, 3).forEach((domain) => {
   const chip = document.createElement('span');
@@ -76,9 +85,10 @@ if (quick) {
   get('quick-progress-message').hidden = false;
 } else {
   progress.href = assessmentUrl('progress.html');
+  if (context.historical) progress.href += '&source=dashboard';
   get('trend-details').hidden = false;
   try {
-    const previous = previousRecording(readHistory(localStorage));
+    const previous = previousRecording(readHistory(localStorage).filter((entry) => entry && String(entry.id) !== String(recording?.id) && (!context.historical || Date.parse(entry.date) < Date.parse(recording?.date))));
     if (score === null) {
       get('trend-delta').textContent = '—';
       get('trend-context').textContent = 'Add scored answers to compare recordings';
@@ -99,10 +109,11 @@ if (quick) {
     get('trend-context').textContent = 'Saved history is unavailable';
   }
 }
-get('finish-results').textContent = quick ? 'Finish' : 'Finish & Save to Dashboard';
+get('finish-results').textContent = context.historical ? 'Back to Dashboard' : quick ? 'Finish' : 'Finish & Save to Dashboard';
 let finishing = false;
 get('finish-results').addEventListener('click', () => {
   if (finishing) return;
+  if (context.historical) { window.location.href = assessmentUrl('dashboard.html'); return; }
   if (quick) { window.location.href = assessmentUrl('login.html'); return; }
   try {
     saveRecording(localStorage, recording);
@@ -113,6 +124,6 @@ get('finish-results').addEventListener('click', () => {
   }
 });
 document.querySelectorAll('[data-results-back]').forEach((button) => {
-  button.addEventListener('click', () => { window.location.href = assessmentUrl('optional-health-data.html'); });
+  button.addEventListener('click', () => { window.location.href = assessmentUrl(context.historical ? 'dashboard.html' : 'optional-health-data.html'); });
 });
 setupAvatar();

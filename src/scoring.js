@@ -198,7 +198,7 @@ export function calculateAssessment(storage) {
   const weakest = [...available].sort((a, b) => a.score - b.score);
   const focusTargets = weakest.filter((domain) => domain.score < 6);
   return {
-    overallScore, domains, alerts, focusTargets,
+    overallScore, domains, alerts, focusTargets, answers,
     completeness: calculateCompleteness(answers),
     interpretation: interpretScore(overallScore),
     insight: { strong: available.length > 0 && available.every((domain) => domain.score >= 8), domains: weakest.filter((domain) => domain.score < 8).slice(0, 2) },

@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dashboard | MyHealth Score</title>
+    <link rel="stylesheet" href="../src/style.css" />
+  </head>
+  <body class="assessment-page results-page progress-page dashboard-page">
+    <div class="assessment-screen">
+      <header class="assessment-header">
+        <div class="login-logo progress-logo" aria-hidden="true">♥<span></span></div>
+        <div class="assessment-header-title"><strong>MyHealth Score</strong><span>Dashboard</span></div>
+        <button id="profile-avatar" class="assessment-avatar" type="button" aria-label="Choose profile image" hidden>
+          <svg id="default-avatar" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="14" r="7"/><path d="M7 37v-5a13 13 0 0 1 26 0v5Z"/></svg>
+          <img id="avatar-preview" alt="Your selected profile image" hidden />
+        </button><input id="avatar-input" type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden />
+      </header>
+      <main id="dashboard-main" hidden>
+        <section class="assessment-card dashboard-user">
+          <div class="assessment-avatar dashboard-user-avatar" data-profile-avatar-copy>
+            <svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="14" r="7"/><path d="M7 37v-5a13 13 0 0 1 26 0v5Z"/></svg><img alt="Your profile image" hidden />
+          </div>
+          <div class="dashboard-greeting"><h1 id="dashboard-greeting">Hello</h1><p id="recording-count">0 recordings completed</p></div>
+          <div class="dashboard-user-actions"><a href="settings.html?mode=registered">Settings</a><button id="dashboard-exit" type="button">Exit</button></div>
+        </section>
+        <section id="new-recording-card" class="assessment-card dashboard-new">
+          <h2>Start New Health Recording</h2><p>Capture your latest wellness data and continue building your health trends.</p>
+          <form id="new-recording-form"><label for="new-recording-name">Recording name</label><div class="dashboard-record-field"><input id="new-recording-name" type="text" maxlength="100" placeholder="e.g. November Week 1" /><button type="submit">+ Record</button></div></form>
+        </section>
+        <p id="dashboard-status" class="assessment-error" role="status"></p><p id="profile-status" class="assessment-error" role="status"></p>
+        <section class="assessment-card" aria-labelledby="dashboard-progression-heading">
+          <h2 id="dashboard-progression-heading" class="dashboard-eyebrow">SCORE PROGRESSION</h2>
+          <div id="dashboard-score-summary" class="dashboard-score-summary"></div>
+          <div id="dashboard-chart" class="progress-chart-scroll" tabindex="0" aria-label="Saved overall score progression; scroll horizontally for more recordings"></div>
+        </section>
+        <section aria-labelledby="latest-scores-heading"><h2 id="latest-scores-heading">Latest Health Scores</h2><div id="dashboard-categories" class="dashboard-categories"></div></section>
+        <section class="dashboard-recordings" aria-labelledby="recordings-heading">
+          <div class="results-heading-row"><h2 id="recordings-heading">Your Health Recordings</h2><button id="view-all-recordings" type="button" hidden aria-expanded="false" aria-controls="dashboard-recordings-list">View All</button></div>
+          <p class="dashboard-history-description">Chronological assessment history</p><div id="dashboard-recordings-list"></div>
+        </section>
+      </main>
+      <div id="dashboard-quick-message" class="assessment-card" hidden><p>The Dashboard is available for registered mode.</p><a href="login.html">Return to Login</a></div>
+    </div>
+    <nav id="dashboard-bottom-nav" class="dashboard-bottom-nav" aria-label="Main navigation" hidden><a href="dashboard.html?mode=registered" aria-current="page">Dashboard</a><a href="#new-recording-card" id="focus-recording">Assessment</a><a href="progress.html?mode=registered&source=dashboard">Analytics</a><a href="settings.html?mode=registered">Profile</a></nav>
+    <script type="module" src="../src/dashboard.js"></script>
+  </body>
+</html>
