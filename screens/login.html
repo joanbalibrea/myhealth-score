@@ -39,8 +39,8 @@
             <div class="login-field">
               <span aria-hidden="true">⚿</span>
               <input id="password" name="password" type="password" autocomplete="current-password" placeholder="Enter your password" required />
-              <button id="show-password" type="button" aria-label="Show password" aria-pressed="false">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+              <button id="show-password" type="button" data-password-toggle="password" aria-controls="password" aria-label="Show password" aria-pressed="false">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/><path class="password-eye-slash" d="M3 3l18 18" hidden /></svg>
               </button>
             </div>
 
@@ -51,7 +51,7 @@
           <form id="register-form" hidden>
             <label for="register-username">Username</label>
             <div class="login-field">
-              <span aria-hidden="true">@</span>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/></svg>
               <input id="register-username" name="username" type="text" autocomplete="username" placeholder="Choose a username" required />
             </div>
             <label for="register-email">Email</label>
@@ -63,11 +63,17 @@
             <div class="login-field">
               <span aria-hidden="true">⚿</span>
               <input id="register-password" name="password" type="password" autocomplete="new-password" minlength="8" placeholder="Choose a password (8+ characters)" required />
+              <button type="button" data-password-toggle="register-password" aria-controls="register-password" aria-label="Show password" aria-pressed="false">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/><path class="password-eye-slash" d="M3 3l18 18" hidden /></svg>
+              </button>
             </div>
             <label for="confirm-password">Confirm Password</label>
             <div class="login-field">
               <span aria-hidden="true">⚿</span>
               <input id="confirm-password" name="confirm-password" type="password" autocomplete="new-password" placeholder="Confirm your password" aria-describedby="register-status" required />
+              <button type="button" data-password-toggle="confirm-password" aria-controls="confirm-password" aria-label="Show password" aria-pressed="false">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/><path class="password-eye-slash" d="M3 3l18 18" hidden /></svg>
+              </button>
             </div>
             <p id="register-status" class="login-status" role="alert"></p>
             <button class="login-submit" type="submit">Create Free Account<span aria-hidden="true">→</span></button>
@@ -127,11 +133,15 @@
         });
       });
 
-      document.querySelector('#show-password').addEventListener('click', (event) => {
-        const visible = password.type === 'password';
-        password.type = visible ? 'text' : 'password';
-        event.currentTarget.setAttribute('aria-label', visible ? 'Hide password' : 'Show password');
-        event.currentTarget.setAttribute('aria-pressed', String(visible));
+      document.querySelectorAll('[data-password-toggle]').forEach((button) => {
+        button.addEventListener('click', () => {
+          const input = document.getElementById(button.dataset.passwordToggle);
+          const visible = input.type === 'password';
+          input.type = visible ? 'text' : 'password';
+          button.setAttribute('aria-label', visible ? 'Hide password' : 'Show password');
+          button.setAttribute('aria-pressed', String(visible));
+          button.querySelector('.password-eye-slash').toggleAttribute('hidden', !visible);
+        });
       });
 
       loginForm.addEventListener('submit', async (event) => {
