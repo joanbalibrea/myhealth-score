@@ -1,9 +1,9 @@
 import { assessmentMode, setupAvatar } from './assessment.js';
-import { readProfile, startRecording, exitRegistered } from './profile.js';
+import { readProfile, startRecording } from './profile.js';
 import { validatedHistory, dateLabel, scoreChange, signedChange, changeDirection, chartSegments } from './progress-data.js';
 import { DOMAIN_INFO, interpretScore } from './scoring.js';
 import { recordingLabel } from './result-context.js';
-import { getCurrentUser, getUserHistoryStorage } from './accounts.js';
+import { getCurrentUser, getUserHistoryStorage, logoutUser } from './accounts.js';
 
 const get = (id) => document.getElementById(id);
 function node(tag, className, text) {
@@ -20,7 +20,7 @@ function svgNode(tag, attributes = {}, text) {
 }
 if (assessmentMode === 'quick') {
   get('dashboard-quick-message').hidden = false;
-} else if (!getCurrentUser()) {
+} else if (!await getCurrentUser()) {
   window.location.replace('login.html');
 } else {
   get('dashboard-main').hidden = false;
@@ -28,7 +28,7 @@ if (assessmentMode === 'quick') {
   setupAvatar();
   let profile = { name: '' };
   let history = { records: [], unavailable: true };
-  try { profile = readProfile(localStorage); history = validatedHistory(getUserHistoryStorage()); } catch { /* Show empty state. */ }
+  try { profile = readProfile(localStorage, await getCurrentUser()); history = validatedHistory(await getUserHistoryStorage()); } catch { /* Show empty state. */ }
   const records = history.records;
   const latest = records.at(-1);
   if (history.unavailable) get('dashboard-status').textContent = 'Saved recordings could not be read. Existing history has not been changed.';
@@ -41,9 +41,11 @@ if (assessmentMode === 'quick') {
       window.location.href = 'basic-profile.html?mode=registered';
     } catch { get('dashboard-status').textContent = 'Please allow session storage before starting a new recording.'; }
   });
-  get('dashboard-exit').addEventListener('click', () => {
-    try { exitRegistered(sessionStorage); } catch { /* Navigation still works. */ }
-    window.location.href = 'login.html';
+  get('dashboard-exit').addEventListener('click', async () => {
+    get('dashboard-exit').disabled = true;
+    try { await logoutUser(); window.location.href = 'login.html'; }
+    catch (error) { get('dashboard-status').textContent = error.message || 'Unable to sign out. Please try again.'; }
+    finally { get('dashboard-exit').disabled = false; }
   });
   get('focus-recording').addEventListener('click', () => get('new-recording-name').focus());
   const summary = get('dashboard-score-summary');

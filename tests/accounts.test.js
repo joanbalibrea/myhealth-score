@@ -1,94 +1,107 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { registerUser, loginUser, logoutUser, getCurrentUser, getUsers, getUserHistoryKey, getUserHistoryStorage, getCurrentUserHistory, updateCurrentUser, hashPassword } from '../src/accounts.js';
-import { readProfile } from '../src/profile.js';
+import { createAuthService, getUserHistoryKey } from '../src/auth-service.js';
 import { saveRecording } from '../src/result-history.js';
-import { loadResultContext } from '../src/result-context.js';
 
 function storage(values = {}) {
   const data = new Map(Object.entries(values));
   return { getItem: (key) => data.get(key) ?? null, setItem: (key, value) => data.set(key, String(value)), removeItem: (key) => data.delete(key) };
 }
-const joan = { username: 'joan', email: 'joan@test.com', password: 'test123', confirmation: 'test123' };
-const maria = { username: 'maria', email: 'maria@test.com', password: 'example456', confirmation: 'example456' };
+function fixture() {
+  const session = storage(), local = storage();
+  let user = null;
+  let listener;
+  const calls = [];
+  const state = { signUpError: null, loginError: null, logoutError: null, signupSession: null };
+  const client = { auth: {
+    onAuthStateChange(callback) { listener = callback; return { data: { subscription: { unsubscribe() {} } } }; },
+    async getUser() { calls.push(['getUser']); return { data: { user }, error: null }; },
+    async signUp(payload) { calls.push(['signUp', payload]); return { data: { user: { id: 'unconfirmed', user_metadata: payload.options.data }, session: state.signupSession }, error: state.signUpError }; },
+    async signInWithPassword(payload) { calls.push(['signInWithPassword', payload]); if (state.loginError) return { data: {}, error: state.loginError }; user = { id: 'supabase-joan', email: payload.email, user_metadata: { username: 'joan' } }; listener('SIGNED_IN', { user }); return { data: { user, session: { user } }, error: null }; },
+    async signOut() { calls.push(['signOut']); if (state.logoutError) return { error: state.logoutError }; user = null; listener('SIGNED_OUT', null); return { error: null }; },
+    async updateUser(payload) { calls.push(['updateUser', payload]); user = { ...user, user_metadata: { ...user.user_metadata, ...payload.data } }; return { data: { user }, error: null }; },
+  } };
+  return { auth: createAuthService(client, { sessionStorage: session, localStorage: local }), state, calls, session, local, setUser(value) { user = value; listener(value ? 'SIGNED_IN' : 'SIGNED_OUT', value ? { user: value } : null); } };
+}
+const details = { username: ' joan ', email: ' joan@test.com ', password: 'test12345', confirmation: 'test12345' };
 
-test('A–H: independent accounts, logout, wrong/correct login, duplicates and switching', async () => {
-  const local = storage({ myhealth_profile: '{"name":"Legacy"}', myhealth_history: '[{"id":"legacy"}]' });
-  const session = storage();
-  const a = await registerUser(joan, local, session);
-  assert.equal(getCurrentUser(local, session).username, 'joan');
-  assert.deepEqual(getCurrentUserHistory(local, session), []);
-  assert.equal(a.passwordHash, await hashPassword('test123'));
-  assert.equal(a.passwordHash.length, 64);
-  assert.doesNotMatch(local.getItem('myhealth_users'), /test123|example456/);
-  updateCurrentUser({ avatar: 'data:image/png;base64,AAAA' }, local, session);
-  const joanHistory = getUserHistoryStorage(local, session);
-  const record = { id: 'joan-only', date: '2026-10-30T12:00:00Z', overallScore: 7, completeness: 90, domainScores: { sleep: 7 } };
-  saveRecording(joanHistory, record); saveRecording(joanHistory, record);
-  logoutUser(session);
-  assert.equal(getCurrentUser(local, session), null);
-  assert.equal(getUsers(local).length, 1);
-  assert.equal(JSON.parse(local.getItem(getUserHistoryKey(a.id))).length, 1);
-  await assert.rejects(loginUser('joan', 'wrongpassword', local, session), /Incorrect password\./);
-  assert.equal(getCurrentUser(local, session), null);
-  await loginUser('JOAN@TEST.COM', 'test123', local, session);
-  assert.equal(getCurrentUser(local, session).id, a.id);
-  await assert.rejects(registerUser({ ...joan, username: 'JOAN', email: 'new@test.com' }, local, session), /This username is already registered\./);
-  await assert.rejects(registerUser({ ...joan, username: 'other', email: 'JOAN@Test.com' }, local, session), /An account with this email already exists\./);
-  const b = await registerUser(maria, local, session);
-  assert.notEqual(a.id, b.id);
-  assert.deepEqual(readProfile(local, session), { name: 'maria', avatar: '' });
-  assert.deepEqual(getCurrentUserHistory(local, session), []);
-  assert.throws(() => joanHistory.getItem('myhealth_history'), /account has changed/);
-  const mariaHistory = getUserHistoryStorage(local, session);
-  assert.equal(loadResultContext(session, mariaHistory, record.id).record, null);
-  saveRecording(mariaHistory, { ...record, id: 'maria-only', overallScore: 9 });
-  logoutUser(session);
-  await loginUser('joan', 'test123', local, session);
-  assert.equal(getCurrentUserHistory(local, session)[0].id, 'joan-only');
-  assert.equal(readProfile(local, session).avatar, 'data:image/png;base64,AAAA');
-  logoutUser(session);
-  await loginUser('maria', 'example456', local, session);
-  assert.equal(getCurrentUserHistory(local, session)[0].id, 'maria-only');
-  assert.equal(readProfile(local, session).avatar, '');
-  assert.equal(local.getItem('myhealth_history'), '[{"id":"legacy"}]');
+test('registration delegates credentials and username metadata to Supabase; confirmation has no session', async () => {
+  const f = fixture();
+  const result = await f.auth.registerUser(details);
+  assert.equal(result.session, null);
+  assert.deepEqual(f.calls[0], ['signUp', { email: 'joan@test.com', password: 'test12345', options: { data: { username: 'joan' } } }]);
+  assert.equal(await f.auth.getCurrentUser(), null);
+  assert.equal(f.local.getItem('myhealth_users'), null);
+  assert.equal(f.session.getItem('myhealth_current_user_id'), null);
 });
-
-test('empty fields, mismatched confirmation and unknown users cannot authenticate', async () => {
-  const local = storage(), session = storage();
-  await assert.rejects(registerUser({ ...joan, username: ' ' }, local, session), /required fields/);
-  await assert.rejects(registerUser({ ...joan, password: ' ' }, local, session), /required fields/);
-  await assert.rejects(registerUser({ ...joan, confirmation: 'different' }, local, session), /Passwords do not match\./);
-  await assert.rejects(loginUser('missing', 'password', local, session), /Account not found\. Check your username or email\./);
-  assert.equal(local.getItem('myhealth_users'), null);
-  assert.equal(session.getItem('myhealth_current_user_id'), null);
+test('frontend validation rejects empty, mismatched and short passwords before API calls', async () => {
+  const f = fixture();
+  await assert.rejects(f.auth.registerUser({ ...details, username: ' ' }), /required fields/);
+  await assert.rejects(f.auth.registerUser({ ...details, confirmation: 'different' }), /Passwords do not match/);
+  await assert.rejects(f.auth.registerUser({ ...details, password: '1234567', confirmation: '1234567' }), /at least 8/);
+  assert.equal(f.calls.length, 0);
 });
-
-test('settings enforce case-insensitive username/email uniqueness without changing other accounts', async () => {
-  const local = storage(), session = storage();
-  const a = await registerUser(joan, local, session);
-  const b = await registerUser(maria, local, session);
-  assert.throws(() => updateCurrentUser({ username: 'JOAN' }, local, session), /username is already registered/);
-  assert.throws(() => updateCurrentUser({ email: 'JOAN@TEST.COM' }, local, session), /email already exists/);
-  updateCurrentUser({ username: 'Maria New', email: 'new@test.com', password: 'plaintext' }, local, session);
-  assert.equal(getCurrentUser(local, session).username, 'Maria New');
-  assert.equal(getUsers(local).find((user) => user.id === a.id).username, 'joan');
-  assert.equal(getCurrentUser(local, session).id, b.id);
-  assert.equal(getCurrentUser(local, session).passwordHash, b.passwordHash);
-  assert.doesNotMatch(local.getItem('myhealth_users'), /plaintext/);
+test('login uses Supabase email/password; failed and unconfirmed logins never authenticate', async () => {
+  const f = fixture();
+  f.state.loginError = { code: 'invalid_credentials' };
+  await assert.rejects(f.auth.loginUser('joan@test.com', 'wrong'), /Incorrect email or password/);
+  assert.equal(await f.auth.getCurrentUser(), null);
+  f.state.loginError = { code: 'email_not_confirmed' };
+  await assert.rejects(f.auth.loginUser('joan@test.com', 'password'), /confirm your email/);
+  f.state.loginError = null;
+  const user = await f.auth.loginUser(' joan@test.com ', 'test12345');
+  assert.equal(user.id, 'supabase-joan');
+  assert.equal((await f.auth.getCurrentUser()).user_metadata.username, 'joan');
+  assert.equal(f.session.getItem('myhealth_current_user_id'), null);
 });
-
-test('legacy profile/flag never authenticates; logout/quick reset preserves registry and histories', async () => {
-  const local = storage({ myhealth_profile: '{"name":"Legacy"}' });
-  const session = storage({ myhealth_registered_session: 'true' });
-  assert.equal(getCurrentUser(local, session), null);
-  assert.throws(() => getUserHistoryStorage(local, session), /sign in/);
-  await registerUser(joan, local, session);
-  session.setItem('myhealth_sleep_hours', '8');
-  const before = local.getItem('myhealth_users');
-  logoutUser(session);
-  assert.equal(session.getItem('myhealth_sleep_hours'), null);
-  assert.equal(session.getItem('myhealth_registered_session'), null);
-  assert.equal(local.getItem('myhealth_users'), before);
-  assert.deepEqual(readProfile(local, session), { name: '', avatar: '' });
+test('local prototype IDs and registries never establish authentication', async () => {
+  const f = fixture();
+  f.session.setItem('myhealth_current_user_id', 'legacy');
+  f.local.setItem('myhealth_users', JSON.stringify([{ id: 'legacy', passwordHash: 'old' }]));
+  assert.equal(await f.auth.getCurrentUser(), null);
+  await assert.rejects(f.auth.getUserHistoryStorage(), /sign in/);
+});
+test('local history remains scoped to Supabase IDs, duplicate-safe and isolated', async () => {
+  const f = fixture();
+  f.setUser({ id: 'joan-id', email: 'joan@test.com', user_metadata: { username: 'joan' } });
+  const adapter = await f.auth.getUserHistoryStorage();
+  const record = { id: 'one', overallScore: 8 };
+  saveRecording(adapter, record); saveRecording(adapter, record);
+  assert.equal(JSON.parse(f.local.getItem(getUserHistoryKey('joan-id'))).length, 1);
+  f.setUser({ id: 'maria-id', email: 'maria@test.com', user_metadata: { username: 'maria' } });
+  assert.throws(() => adapter.getItem('myhealth_history'), /account has changed/);
+  assert.deepEqual(await f.auth.getCurrentUserHistory(), []);
+  assert.equal(f.local.getItem('myhealth_history'), null);
+});
+test('logout awaits Supabase success and preserves history and profiles', async () => {
+  const f = fixture();
+  await f.auth.loginUser('joan@test.com', 'test12345');
+  f.local.setItem('myhealth_history_supabase-joan', '[{"id":"saved"}]');
+  f.local.setItem('myhealth_profile_supabase-joan', '{"avatar":"image"}');
+  f.session.setItem('myhealth_sleep_hours', '8');
+  f.state.logoutError = { message: 'Try again' };
+  await assert.rejects(f.auth.logoutUser(), /Try again/);
+  assert.notEqual(await f.auth.getCurrentUser(), null);
+  f.state.logoutError = null;
+  await f.auth.logoutUser();
+  assert.equal(await f.auth.getCurrentUser(), null);
+  assert.equal(f.session.getItem('myhealth_sleep_hours'), null);
+  assert.equal(f.local.getItem('myhealth_history_supabase-joan'), '[{"id":"saved"}]');
+  assert.equal(f.local.getItem('myhealth_profile_supabase-joan'), '{"avatar":"image"}');
+});
+test('settings update username metadata through Supabase, not a local registry', async () => {
+  const f = fixture(); await f.auth.loginUser('joan@test.com', 'test12345');
+  const updated = await f.auth.updateCurrentUser({ username: 'Joan New', email: 'new@test.com' });
+  assert.equal(updated.user_metadata.username, 'Joan New');
+  assert.deepEqual(f.calls.at(-1), ['updateUser', { data: { username: 'Joan New' }, email: 'new@test.com' }]);
+  assert.equal(f.local.getItem('myhealth_users'), null);
+});
+test('authentication switches clear draft answers without removing history', async () => {
+  const f = fixture();
+  f.setUser({ id: 'joan', email: 'joan@test.com' }); await f.auth.getCurrentUser();
+  f.session.setItem('myhealth_sleep_hours', '8');
+  f.local.setItem('myhealth_history_joan', '[]');
+  f.setUser({ id: 'maria', email: 'maria@test.com' }); await f.auth.getCurrentUser();
+  assert.equal(f.session.getItem('myhealth_sleep_hours'), null);
+  assert.equal(f.local.getItem('myhealth_history_joan'), '[]');
 });

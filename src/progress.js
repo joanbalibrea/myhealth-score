@@ -27,7 +27,7 @@ document.querySelectorAll('[data-progress-dashboard]').forEach((link) => { link.
 if (assessmentMode === 'quick') {
   get('progress-quick-message').hidden = false;
   document.querySelectorAll('[data-progress-dashboard]').forEach((link) => { link.hidden = true; });
-} else if (!getCurrentUser()) {
+} else if (!await getCurrentUser()) {
   window.location.replace('login.html');
 } else {
   setupAvatar();
@@ -38,7 +38,7 @@ if (assessmentMode === 'quick') {
   try { name = session.getItem('myhealth_recording_name')?.trim() || ''; } catch { /* Date fallback. */ }
   const savedOnly = new URLSearchParams(window.location.search).get('source') === 'dashboard';
   let history;
-  try { history = validatedHistory(getUserHistoryStorage()); }
+  try { history = validatedHistory(await getUserHistoryStorage()); }
   catch { history = { records: [], unavailable: true }; }
   const empty = { id: 'empty', name: '', date: new Date().toISOString(), overallScore: null, domainScores: Object.fromEntries(DOMAIN_INFO.map((domain) => [domain.id, null])) };
   const current = savedOnly ? history.records.at(-1) ?? empty : currentRecording(calculateAssessment(session), name, session);
