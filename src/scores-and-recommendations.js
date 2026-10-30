@@ -2,13 +2,18 @@ import { assessmentMode, assessmentUrl, setupAvatar } from './assessment.js';
 import { calculateAssessment, readAssessment, domainHighlights, domainRecommendation, interpretScore } from './scoring.js';
 import { loadResultContext, recordingLabel } from './result-context.js';
 import { dateLabel } from './progress-data.js';
+import { getCurrentUser, getUserHistoryStorage } from './accounts.js';
+
+if (assessmentMode !== 'quick' && !getCurrentUser()) {
+  window.location.replace('login.html');
+} else {
 
 let storage;
 try { storage = window.sessionStorage; } catch { storage = { getItem: () => null }; }
 // Reuse the exact Screen 10 engine without saving history or modifying answers.
 const recordId = assessmentMode === 'quick' ? null : new URLSearchParams(window.location.search).get('record');
 let historyStorage;
-try { historyStorage = localStorage; } catch { historyStorage = { getItem() { throw new Error('Storage unavailable'); } }; }
+try { historyStorage = assessmentMode === 'quick' ? null : getUserHistoryStorage(); } catch { historyStorage = { getItem() { throw new Error('Storage unavailable'); } }; }
 const context = loadResultContext(storage, historyStorage, recordId);
 const result = context.result;
 const answers = context.historical ? null : readAssessment(storage);
@@ -90,3 +95,4 @@ get('recording-name').textContent = context.historical ? recordingLabel(context.
 if (context.error) get('domain-cards').prepend(element('p', 'assessment-error', context.error));
 document.querySelectorAll('[data-return-results]').forEach((link) => { link.href = assessmentUrl('results.html') + (recordId ? `&record=${encodeURIComponent(recordId)}` : ''); });
 setupAvatar();
+}

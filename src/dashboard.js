@@ -3,6 +3,7 @@ import { readProfile, startRecording, exitRegistered } from './profile.js';
 import { validatedHistory, dateLabel, scoreChange, signedChange, changeDirection, chartSegments } from './progress-data.js';
 import { DOMAIN_INFO, interpretScore } from './scoring.js';
 import { recordingLabel } from './result-context.js';
+import { getCurrentUser, getUserHistoryStorage } from './accounts.js';
 
 const get = (id) => document.getElementById(id);
 function node(tag, className, text) {
@@ -19,13 +20,15 @@ function svgNode(tag, attributes = {}, text) {
 }
 if (assessmentMode === 'quick') {
   get('dashboard-quick-message').hidden = false;
+} else if (!getCurrentUser()) {
+  window.location.replace('login.html');
 } else {
   get('dashboard-main').hidden = false;
   get('dashboard-bottom-nav').hidden = false;
   setupAvatar();
   let profile = { name: '' };
   let history = { records: [], unavailable: true };
-  try { profile = readProfile(localStorage); history = validatedHistory(localStorage); } catch { /* Show empty state. */ }
+  try { profile = readProfile(localStorage); history = validatedHistory(getUserHistoryStorage()); } catch { /* Show empty state. */ }
   const records = history.records;
   const latest = records.at(-1);
   if (history.unavailable) get('dashboard-status').textContent = 'Saved recordings could not be read. Existing history has not been changed.';

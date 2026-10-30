@@ -3,15 +3,19 @@ import { calculateAssessment, interpretScore } from './scoring.js';
 import { currentRecording, readHistory, previousRecording, saveRecording } from './result-history.js';
 import { loadResultContext, recordingLabel } from './result-context.js';
 import { dateLabel } from './progress-data.js';
+import { getCurrentUser, getUserHistoryStorage } from './accounts.js';
 
 const quick = assessmentMode === 'quick';
+if (!quick && !getCurrentUser()) {
+  window.location.replace('login.html');
+} else {
 const get = (id) => document.getElementById(id);
 // Storage access can itself throw when browser storage is blocked.
 let session;
 try { session = window.sessionStorage; } catch { session = { getItem: () => null }; }
 const recordId = quick ? null : new URLSearchParams(window.location.search).get('record');
 let historyStorage;
-try { historyStorage = localStorage; } catch { historyStorage = { getItem() { throw new Error('Storage unavailable'); } }; }
+try { historyStorage = quick ? null : getUserHistoryStorage(); } catch { historyStorage = { getItem() { throw new Error('Storage unavailable'); } }; }
 const context = loadResultContext(session, historyStorage, recordId);
 const result = context.result;
 let recordingName = '';
@@ -88,7 +92,7 @@ if (quick) {
   if (context.historical) progress.href += '&source=dashboard';
   get('trend-details').hidden = false;
   try {
-    const previous = previousRecording(readHistory(localStorage).filter((entry) => entry && String(entry.id) !== String(recording?.id) && (!context.historical || Date.parse(entry.date) < Date.parse(recording?.date))));
+    const previous = previousRecording(readHistory(historyStorage).filter((entry) => entry && String(entry.id) !== String(recording?.id) && (!context.historical || Date.parse(entry.date) < Date.parse(recording?.date))));
     if (score === null) {
       get('trend-delta').textContent = '—';
       get('trend-context').textContent = 'Add scored answers to compare recordings';
@@ -116,7 +120,7 @@ get('finish-results').addEventListener('click', () => {
   if (context.historical) { window.location.href = assessmentUrl('dashboard.html'); return; }
   if (quick) { window.location.href = assessmentUrl('login.html'); return; }
   try {
-    saveRecording(localStorage, recording);
+    saveRecording(historyStorage, recording);
     finishing = true;
     window.location.href = assessmentUrl('dashboard.html');
   } catch {
@@ -127,3 +131,4 @@ document.querySelectorAll('[data-results-back]').forEach((button) => {
   button.addEventListener('click', () => { window.location.href = assessmentUrl(context.historical ? 'dashboard.html' : 'optional-health-data.html'); });
 });
 setupAvatar();
+}

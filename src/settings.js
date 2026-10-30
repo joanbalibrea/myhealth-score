@@ -1,20 +1,25 @@
 import { assessmentMode, setupAvatar } from './assessment.js';
 import { readProfile, saveProfile } from './profile.js';
+import { getCurrentUser, updateCurrentUser } from './accounts.js';
 const get = (id) => document.getElementById(id);
 if (assessmentMode === 'quick') {
   get('settings-quick-message').hidden = false;
   get('settings-back').href = 'login.html';
   get('settings-back').textContent = 'Back to Login';
+} else if (!getCurrentUser()) {
+  window.location.replace('login.html');
 } else {
   get('settings-main').hidden = false;
   setupAvatar();
-  try { get('display-name').value = readProfile(localStorage).name; } catch { /* Empty fallback. */ }
+  const user = getCurrentUser();
+  get('display-name').value = user.username;
+  get('profile-email').value = user.email;
   get('settings-form').addEventListener('submit', (event) => {
     event.preventDefault();
     try {
-      saveProfile(localStorage, { ...readProfile(localStorage), name: get('display-name').value });
-      get('profile-status').textContent = 'Display name updated.';
-    } catch { get('profile-status').textContent = 'Profile changes could not be saved. Please allow browser storage.'; }
+      updateCurrentUser({ username: get('display-name').value, email: get('profile-email').value });
+      get('profile-status').textContent = 'Profile updated.';
+    } catch (error) { get('profile-status').textContent = error.message || 'Profile changes could not be saved.'; }
   });
   get('choose-profile-image').addEventListener('click', () => get('avatar-input').click());
   get('remove-profile-image').addEventListener('click', () => {

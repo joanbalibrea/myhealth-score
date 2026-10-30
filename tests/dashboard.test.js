@@ -14,10 +14,11 @@ function storage(values = {}) {
 test('new recording clears every assessment answer while retaining profile/session state', () => {
   const session = storage(Object.fromEntries(ASSESSMENT_KEYS.map((key) => [`myhealth_${key}`, 'old'])));
   session.setItem('myhealth_profile', '{"name":"Ada"}');
+  session.setItem('myhealth_current_user_id', 'ada');
   session.setItem('unrelated', 'keep');
   startRecording(session, '  November Week 1  ');
   assert.equal(session.getItem('myhealth_recording_name'), 'November Week 1');
-  assert.equal(session.getItem('myhealth_registered_session'), 'true');
+  assert.equal(session.getItem('myhealth_current_user_id'), 'ada');
   assert.equal(session.getItem('myhealth_profile'), '{"name":"Ada"}');
   assert.equal(session.getItem('unrelated'), 'keep');
   ASSESSMENT_KEYS.filter((key) => key !== 'recording_name').forEach((key) => assert.equal(session.getItem(`myhealth_${key}`), null));
@@ -36,13 +37,14 @@ test('exit clears active answers and registered session but never local profile/
 });
 
 test('profile storage whitelists display fields and never passwords', () => {
-  const local = storage();
-  saveProfile(local, { name: ' Ada ', avatar: 'https://untrusted.example/image', password: 'secret', sleep_hours: 8 });
-  assert.deepEqual(readProfile(local), { name: 'Ada', avatar: '' });
-  assert.doesNotMatch(local.getItem('myhealth_profile'), /password|secret|sleep_hours/);
-  saveProfile(local, { name: 'Ada', avatar: 'data:image/png;base64,AAAA' });
-  assert.equal(readProfile(local).avatar, 'data:image/png;base64,AAAA');
-  assert.deepEqual(readProfile(storage({ myhealth_profile: 'bad' })), { name: '', avatar: '' });
+  const local = storage({ myhealth_users: JSON.stringify([{ id: 'ada', username: 'Ada', email: 'ada@test.com', avatar: '' }]) });
+  const session = storage({ myhealth_current_user_id: 'ada' });
+  saveProfile(local, { name: ' Ada ', avatar: 'https://untrusted.example/image', password: 'secret', sleep_hours: 8 }, session);
+  assert.deepEqual(readProfile(local, session), { name: 'Ada', avatar: '' });
+  assert.doesNotMatch(local.getItem('myhealth_users'), /secret|sleep_hours/);
+  saveProfile(local, { name: 'Ada', avatar: 'data:image/png;base64,AAAA' }, session);
+  assert.equal(readProfile(local, session).avatar, 'data:image/png;base64,AAAA');
+  assert.deepEqual(readProfile(storage({ myhealth_profile: 'bad' }), storage()), { name: '', avatar: '' });
 });
 
 test('new history includes reproducible scores, recommendations and only recognized answers', () => {

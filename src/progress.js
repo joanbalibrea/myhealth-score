@@ -2,6 +2,7 @@ import { assessmentMode, assessmentUrl, setupAvatar } from './assessment.js';
 import { calculateAssessment, DOMAIN_INFO } from './scoring.js';
 import { currentRecording } from './result-history.js';
 import { validatedHistory, buildProgress, dateLabel, signedChange, changeDirection, chartSegments } from './progress-data.js';
+import { getCurrentUser, getUserHistoryStorage } from './accounts.js';
 
 const get = (id) => document.getElementById(id);
 const domainName = (domain) => domain.id === 'vitals' ? 'Cardiovascular & Vitals' : domain.name;
@@ -26,6 +27,8 @@ document.querySelectorAll('[data-progress-dashboard]').forEach((link) => { link.
 if (assessmentMode === 'quick') {
   get('progress-quick-message').hidden = false;
   document.querySelectorAll('[data-progress-dashboard]').forEach((link) => { link.hidden = true; });
+} else if (!getCurrentUser()) {
+  window.location.replace('login.html');
 } else {
   setupAvatar();
   get('registered-progress').hidden = false;
@@ -35,7 +38,7 @@ if (assessmentMode === 'quick') {
   try { name = session.getItem('myhealth_recording_name')?.trim() || ''; } catch { /* Date fallback. */ }
   const savedOnly = new URLSearchParams(window.location.search).get('source') === 'dashboard';
   let history;
-  try { history = validatedHistory(window.localStorage); }
+  try { history = validatedHistory(getUserHistoryStorage()); }
   catch { history = { records: [], unavailable: true }; }
   const empty = { id: 'empty', name: '', date: new Date().toISOString(), overallScore: null, domainScores: Object.fromEntries(DOMAIN_INFO.map((domain) => [domain.id, null])) };
   const current = savedOnly ? history.records.at(-1) ?? empty : currentRecording(calculateAssessment(session), name, session);
