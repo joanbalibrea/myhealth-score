@@ -9,7 +9,7 @@
       </header>
       <main id="settings-main" hidden>
         <div class="assessment-intro"><h1>Profile Settings</h1><p>Update your display name and profile image.</p></div>
-        <form id="settings-form" class="assessment-card settings-form"><label for="display-name">Display name</label><input id="display-name" type="text" maxlength="100" autocomplete="nickname" /><button type="submit">Save name</button></form>
+        <form id="settings-form" class="assessment-card settings-form"><label for="display-name">Username / display name</label><input id="display-name" type="text" maxlength="100" autocomplete="username" required /><label for="profile-email">Email</label><input id="profile-email" type="email" autocomplete="email" required /><button type="submit">Save profile</button></form>
         <section class="assessment-card settings-image"><h2>Profile image</h2><p>Choose a local PNG, JPEG, WebP, or GIF image. Changes are saved on this browser.</p><button id="choose-profile-image" type="button">Choose image</button><button id="remove-profile-image" type="button">Use default avatar</button></section>
         <p id="profile-status" class="settings-status" role="status"></p>
         <p class="assessment-card settings-future">Password management will require backend authentication and is not available in this prototype.</p>

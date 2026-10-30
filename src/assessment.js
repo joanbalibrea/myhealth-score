@@ -1,4 +1,5 @@
 import { readProfile, saveProfile } from './profile.js';
+import { getCurrentUser, getCurrentUserId } from './accounts.js';
 
 export const assessmentMode = new URLSearchParams(window.location.search).get('mode') === 'quick' ? 'quick' : 'registered';
 export function assessmentUrl(screen) { return `${screen}?mode=${assessmentMode}`; }
@@ -9,6 +10,8 @@ export function setupAvatar() {
   if (!avatar || !input) return;
   avatar.hidden = assessmentMode === 'quick';
   if (assessmentMode === 'quick') return;
+  const ownerId = getCurrentUser()?.id;
+  if (!ownerId) { window.location.replace('login.html'); return; }
   function render(source) {
     const preview = document.querySelector('#avatar-preview');
     preview.hidden = !source;
@@ -31,6 +34,7 @@ export function setupAvatar() {
     reader.addEventListener('load', () => {
       const image = new Image();
       image.onload = () => {
+        if (getCurrentUserId() !== ownerId) return;
         try {
           const profile = readProfile(localStorage);
           saveProfile(localStorage, { ...profile, avatar: reader.result });

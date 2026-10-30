@@ -88,20 +88,21 @@
       </aside>
     </main>
     <script type="module">
-      import { readProfile, saveProfile } from '../src/profile.js';
-      function enterRegistered(name) {
-        try {
-          saveProfile(localStorage, { ...readProfile(localStorage), name: name.trim() });
-          sessionStorage.setItem('myhealth_registered_session', 'true');
-        } catch { /* Navigation still works if storage is unavailable. */ }
-        window.location.assign('dashboard.html?mode=registered');
-      }
+      import { registerUser, loginUser, logoutUser } from '../src/accounts.js';
       const password = document.querySelector('#password');
       const loginForm = document.querySelector('#login-form');
       const registerForm = document.querySelector('#register-form');
       const registerPassword = document.querySelector('#register-password');
       const confirmPassword = document.querySelector('#confirm-password');
       const status = document.querySelector('#register-status');
+      const loginStatus = document.createElement('p');
+      loginStatus.className = 'login-status';
+      loginStatus.setAttribute('role', 'alert');
+      loginForm.querySelector('button[type="submit"]').before(loginStatus);
+      let submitting = false;
+      document.querySelector('#quick-panel a').addEventListener('click', () => {
+        try { logoutUser(); } catch { /* Quick mode does not require storage. */ }
+      });
 
       document.querySelectorAll('[data-access]').forEach((button) => {
         button.addEventListener('click', () => {
@@ -132,22 +133,30 @@
         event.currentTarget.setAttribute('aria-pressed', String(visible));
       });
 
-      loginForm.addEventListener('submit', (event) => {
+      loginForm.addEventListener('submit', async (event) => {
         event.preventDefault();
-        let displayName = document.querySelector('#username').value;
-        try { displayName = readProfile(localStorage).name || displayName; } catch { /* Use entered name. */ }
-        enterRegistered(displayName);
+        if (submitting) return;
+        submitting = true;
+        loginStatus.textContent = '';
+        try {
+          await loginUser(document.querySelector('#username').value, password.value);
+          password.value = '';
+          window.location.assign('dashboard.html?mode=registered');
+        } catch (error) { loginStatus.textContent = error.message || 'Unable to sign in. Please allow browser storage.'; }
+        finally { submitting = false; }
       });
 
-      registerForm.addEventListener('submit', (event) => {
+      registerForm.addEventListener('submit', async (event) => {
         event.preventDefault();
-        if (registerPassword.value !== confirmPassword.value) {
-          status.textContent = 'Passwords do not match.';
-          confirmPassword.setAttribute('aria-invalid', 'true');
-          confirmPassword.focus();
-          return;
-        }
-        enterRegistered(document.querySelector('#register-username').value);
+        if (submitting) return;
+        submitting = true;
+        status.textContent = '';
+        try {
+          await registerUser({ username: document.querySelector('#register-username').value, email: document.querySelector('#register-email').value, password: registerPassword.value, confirmation: confirmPassword.value });
+          registerPassword.value = ''; confirmPassword.value = '';
+          window.location.assign('dashboard.html?mode=registered');
+        } catch (error) { status.textContent = error.message || 'Unable to create account. Please allow browser storage.'; }
+        finally { submitting = false; }
       });
 
       [registerPassword, confirmPassword].forEach((input) => {
