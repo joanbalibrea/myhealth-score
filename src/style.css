@@ -694,3 +694,35 @@ code {
   .lifestyle-compact { grid-template-columns: 1fr; }
   .lifestyle-conditional { padding: 12px; }
 }
+
+/* Optional cardiovascular data uses a soft cyan identity. */
+.vitals-page { background: radial-gradient(ellipse at top right, #dff3f590, transparent 55%), #f6fbfc; }
+.vitals-page .assessment-intro h1, .vitals-page .assessment-progress p { color: #286e77; }
+.vitals-page .assessment-progress progress,
+.vitals-page .assessment-progress progress::-webkit-progress-bar { background: #dceef0; }
+.vitals-page .assessment-progress progress::-webkit-progress-value { background: #38818a; }
+.vitals-page .assessment-progress progress::-moz-progress-bar { background: #38818a; }
+.vitals-page :focus-visible { outline-color: #286e77; }
+.vitals-category { display: inline-block; margin-bottom: 16px; padding: 5px 13px; border-radius: 30px; background: #def2f3; color: #286e77; font-size: 13px; font-weight: bold; }
+.vitals-page .assessment-section-icon { flex-shrink: 0; width: 36px; height: 38px; border-radius: 12px; background: #e4f3f5; color: #38818a; font-size: 24px; }
+.vitals-page .assessment-card h2 { gap: 10px; font-size: 21px; }
+.vitals-description { margin: -4px 0 20px; color: #576b70; font-size: 14px; }
+.vitals-field { display: flex; align-items: center; gap: 8px; min-width: 0; padding: 12px; border: 1px solid #d9eaed; border-radius: 12px; background: #f0f8f9; }
+.vitals-field:focus-within { border-color: #38818a; }
+.vitals-field input { width: 100%; min-width: 0; padding: 0; border: 0; background: transparent; color: #284b53; font: bold 30px/1.3 Georgia, 'Times New Roman', serif; }
+.vitals-field input::placeholder { color: #a0b7bc; opacity: 1; }
+.vitals-field > span { color: #576b70; font-size: 13px; }
+.vitals-label { display: block; margin-bottom: 8px; font-size: 14px; font-weight: bold; color: #36565e; }
+.vitals-pressure-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.vitals-helper { margin-top: 8px; color: #65797e; font-size: 12px; line-height: 1.5; }
+.vitals-reference { margin-top: 18px; color: #65797e; font-size: 12px; line-height: 1.7; }
+.vitals-reference ul { margin: 4px 0 0; padding-left: 18px; }
+.vitals-page .vitals-actions { flex-direction: column; align-items: center; gap: 12px; margin-top: 26px; }
+.vitals-page .vitals-actions #vitals-calculate { width: 100%; display: grid; grid-template-columns: 18px minmax(0, 1fr) 18px; align-items: center; gap: 8px; padding-inline: 18px; background: #327c85; color: white; font-size: 18px; line-height: 1.4; }
+#vitals-calculate > span:first-child { grid-column: 2; text-align: center; }
+#vitals-calculate > span:last-child { grid-column: 3; text-align: right; }
+.vitals-page .vitals-actions [data-vitals-back] { color: #576b70; background: transparent; font-size: 16px; }
+@media (max-width: 380px) {
+  .vitals-pressure-fields { grid-template-columns: 1fr; }
+  .vitals-page .vitals-actions #vitals-calculate { font-size: 16px; }
+}
