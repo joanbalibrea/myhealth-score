@@ -365,8 +365,6 @@ code {
 .login-field input::placeholder { color: #737686; opacity: 1; }
 .login-field button { display: grid; place-items: center; padding: 5px; color: #434655; background: transparent; }
 .login-field > svg, .login-field [data-password-toggle] { flex-shrink: 0; }
-.login-card form .login-remember { display: flex; align-items: center; gap: 8px; margin: 8px 0 22px; font-weight: normal; }
-.login-remember input { width: 17px; height: 17px; margin: 0; accent-color: #004ac6; }
 .login-submit { display: flex; justify-content: center; align-items: center; gap: 14px; width: 100%; min-height: 52px; padding: 12px; border-radius: 40px; background: #2563eb; color: white; text-align: center; text-decoration: none; font-size: 18px !important; font-weight: bold !important; }
 .login-submit:hover { background: #004ac6; }
 .login-status { margin-bottom: 12px; font-size: 14px; color: #ba1a1a; text-align: center; }
