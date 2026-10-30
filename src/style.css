@@ -481,3 +481,57 @@ code {
   .biometric-result { padding: 10px; }
   .biometric-result output { font-size: 28px; }
 }
+
+/* Physical Activity shares the assessment shell with a diffused orange identity. */
+.physical-activity-page { background: radial-gradient(ellipse at top right, #ffeddd90, transparent 55%), #fffaf5; }
+.physical-activity-page .assessment-intro h1,
+.physical-activity-page .assessment-progress p { color: #a94e1b; }
+.physical-activity-page .assessment-progress progress,
+.physical-activity-page .assessment-progress progress::-webkit-progress-bar { background: #f6e3d2; }
+.physical-activity-page .assessment-progress progress::-webkit-progress-value { background: #c3662c; }
+.physical-activity-page .assessment-progress progress::-moz-progress-bar { background: #c3662c; }
+.physical-activity-page .assessment-section-icon { flex-shrink: 0; width: 36px; height: 38px; border-radius: 12px; background: #fff0e2; color: #ad521d; font-size: 24px; }
+.physical-activity-page .assessment-card h2 { gap: 10px; font-size: 20px; }
+.activity-metric { padding: 20px 12px; margin-bottom: 20px; text-align: center; border-radius: 16px; background: #fff7ef; color: #796b61; }
+.activity-metric output { font-size: clamp(32px, 9vw, 46px); font-weight: bold; line-height: 1.3; }
+.activity-metric div > span { display: inline-block; font-size: 16px; }
+.activity-metric p { margin-top: 8px; font-size: 14px; font-weight: bold; }
+.activity-metric[data-tone='sedentary'] { color: #a14e50; }
+.activity-metric[data-tone='low'] { color: #ad542c; }
+.activity-metric[data-tone='somewhat'] { color: #8c681b; }
+.activity-metric[data-tone='active'] { color: #39704b; }
+.activity-metric[data-tone='high'] { color: #207263; }
+.activity-slider-label { display: block; font-size: 14px; margin-bottom: 8px; }
+.activity-slider { display: block; width: 100%; height: 24px; margin: 0; accent-color: #b75c25; cursor: pointer; }
+.activity-range-labels { display: flex; justify-content: space-between; margin: 4px 0 16px; color: #74685f; font-size: 12px; }
+.activity-scale { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 3fr; gap: 0; }
+.activity-scale > span { border-top: 5px solid #e7c3c3; padding: 8px 3px 0; font-size: 10px; line-height: 1.4; overflow-wrap: anywhere; }
+.activity-scale > span:nth-child(2) { border-color: #ebba98; }
+.activity-scale > span:nth-child(3) { border-color: #e5ce90; }
+.activity-scale > span:nth-child(4) { border-color: #b3d3b8; }
+.activity-scale > span:nth-child(5) { border-color: #94c9ba; }
+.activity-scale strong { display: block; font-weight: normal; margin-bottom: 4px; }
+.activity-reference { margin-top: 16px; color: #74685f; font-size: 12px; line-height: 1.6; }
+.activity-clear { background: transparent; color: #984a1d; text-decoration: underline; padding: 10px 0 0; font-size: 13px !important; }
+.activity-question { display: block; color: #5e5853; margin-bottom: 18px; }
+.activity-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 7px; }
+.activity-days button { min-width: 0; min-height: 44px; padding: 6px 0; border-radius: 50%; background: #fff0e2; color: #63412d; font-weight: bold; }
+.activity-days button[aria-pressed='true'] { background: #b75c25; color: white; }
+.activity-intensities { display: grid; gap: 10px; }
+.activity-intensities button { display: flex; align-items: center; gap: 12px; padding: 18px 14px; border: 2px solid transparent; border-radius: 16px; background: #fff7ef; color: #29241f; text-align: left; }
+.activity-intensities button[aria-pressed='true'] { border-color: #c97c48; background: #ffecd9; }
+.activity-option-icon { display: grid; place-items: center; flex: 0 0 36px; height: 36px; border-radius: 50%; background: #ffe8d1; color: #a94e1b; font: 24px/1 system-ui, sans-serif; }
+.activity-intensities strong { display: block; font-size: 17px; }
+.activity-intensities small { display: block; color: #665c54; font-size: 14px; margin-top: 5px; }
+.activity-check { flex: 0 0 22px; height: 22px; margin-left: auto; border-radius: 50%; background: #f5e5d5; color: transparent; text-align: center; }
+.activity-intensities button[aria-pressed='true'] .activity-check { color: white; background: #b75c25; }
+.physical-activity-page select, #other-sport-input { width: 100%; min-height: 48px; padding: 12px; border: 1px solid #ebd8c7; border-radius: 12px; background: #fff9f3; color: #3e342d; font: inherit; }
+#other-sport-field label { display: block; margin: 18px 0 8px; font-size: 14px; }
+.physical-activity-page .assessment-actions { margin-top: 26px; }
+.physical-activity-page .assessment-actions button { padding-inline: 18px; }
+.physical-activity-page .assessment-actions #activity-continue { flex: 1; background: #b75c25; color: white; }
+@media (max-width: 360px) {
+  .activity-intensities button { gap: 8px; padding-inline: 10px; }
+  .activity-option-icon { flex-basis: 28px; height: 28px; }
+  .physical-activity-page .assessment-actions button { font-size: 16px; padding-inline: 14px; }
+}
