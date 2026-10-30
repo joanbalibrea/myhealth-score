@@ -1,16 +1,17 @@
 import { readProfile, saveProfile } from './profile.js';
-import { getCurrentUser, getCurrentUserId } from './accounts.js';
+import { getCurrentUser } from './accounts.js';
 
 export const assessmentMode = new URLSearchParams(window.location.search).get('mode') === 'quick' ? 'quick' : 'registered';
 export function assessmentUrl(screen) { return `${screen}?mode=${assessmentMode}`; }
 
-export function setupAvatar() {
+export async function setupAvatar() {
   const avatar = document.querySelector('#profile-avatar');
   const input = document.querySelector('#avatar-input');
   if (!avatar || !input) return;
   avatar.hidden = assessmentMode === 'quick';
   if (assessmentMode === 'quick') return;
-  const ownerId = getCurrentUser()?.id;
+  const user = await getCurrentUser();
+  const ownerId = user?.id;
   if (!ownerId) { window.location.replace('login.html'); return; }
   function render(source) {
     const preview = document.querySelector('#avatar-preview');
@@ -25,7 +26,7 @@ export function setupAvatar() {
       container.querySelector('svg').toggleAttribute('hidden', Boolean(source));
     });
   }
-  try { render(readProfile(localStorage).avatar); } catch { render(''); }
+  try { render(readProfile(localStorage, user).avatar); } catch { render(''); }
   avatar.addEventListener('click', () => input.click());
   input.addEventListener('change', () => {
     const file = input.files[0];
@@ -33,11 +34,12 @@ export function setupAvatar() {
     const reader = new FileReader();
     reader.addEventListener('load', () => {
       const image = new Image();
-      image.onload = () => {
-        if (getCurrentUserId() !== ownerId) return;
+      image.onload = async () => {
+        const currentUser = await getCurrentUser();
+        if (currentUser?.id !== ownerId) return;
         try {
-          const profile = readProfile(localStorage);
-          saveProfile(localStorage, { ...profile, avatar: reader.result });
+          const profile = readProfile(localStorage, currentUser);
+          saveProfile(localStorage, { ...profile, avatar: reader.result }, currentUser);
           render(reader.result);
         } catch {
           const status = document.querySelector('#profile-status');

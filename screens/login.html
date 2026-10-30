@@ -29,10 +29,10 @@
           </div>
 
           <form id="login-form">
-            <label for="username">Email or Username</label>
+            <label for="username">Email</label>
             <div class="login-field">
               <span aria-hidden="true">@</span>
-              <input id="username" name="username" type="text" autocomplete="username" placeholder="you@domain.com" required />
+              <input id="username" name="email" type="email" autocomplete="email" placeholder="you@domain.com" required />
             </div>
 
             <label for="password">Password</label>
@@ -62,7 +62,7 @@
             <label for="register-password">Password</label>
             <div class="login-field">
               <span aria-hidden="true">⚿</span>
-              <input id="register-password" name="password" type="password" autocomplete="new-password" placeholder="Choose a password" required />
+              <input id="register-password" name="password" type="password" autocomplete="new-password" minlength="8" placeholder="Choose a password (8+ characters)" required />
             </div>
             <label for="confirm-password">Confirm Password</label>
             <div class="login-field">
@@ -88,7 +88,8 @@
       </aside>
     </main>
     <script type="module">
-      import { registerUser, loginUser, logoutUser } from '../src/accounts.js';
+      import { registerUser, loginUser } from '../src/accounts.js';
+      import { clearAssessment } from '../src/account-session.js';
       const password = document.querySelector('#password');
       const loginForm = document.querySelector('#login-form');
       const registerForm = document.querySelector('#register-form');
@@ -101,7 +102,7 @@
       loginForm.querySelector('button[type="submit"]').before(loginStatus);
       let submitting = false;
       document.querySelector('#quick-panel a').addEventListener('click', () => {
-        try { logoutUser(); } catch { /* Quick mode does not require storage. */ }
+        try { clearAssessment(sessionStorage); sessionStorage.setItem('myhealth_assessment_owner', 'quick'); } catch { /* Quick mode does not require authentication. */ }
       });
 
       document.querySelectorAll('[data-access]').forEach((button) => {
@@ -152,10 +153,14 @@
         submitting = true;
         status.textContent = '';
         try {
-          await registerUser({ username: document.querySelector('#register-username').value, email: document.querySelector('#register-email').value, password: registerPassword.value, confirmation: confirmPassword.value });
+          const data = await registerUser({ username: document.querySelector('#register-username').value, email: document.querySelector('#register-email').value, password: registerPassword.value, confirmation: confirmPassword.value });
           registerPassword.value = ''; confirmPassword.value = '';
-          window.location.assign('dashboard.html?mode=registered');
-        } catch (error) { status.textContent = error.message || 'Unable to create account. Please allow browser storage.'; }
+          if (data?.session) window.location.assign('dashboard.html?mode=registered');
+          else {
+            status.dataset.tone = 'success';
+            status.textContent = 'Account created. Check your email to confirm your account, then sign in.';
+          }
+        } catch (error) { status.dataset.tone = 'error'; status.textContent = error.message || 'Unable to create account. Please try again.'; }
         finally { submitting = false; }
       });
 

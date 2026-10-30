@@ -6,7 +6,7 @@ import { dateLabel } from './progress-data.js';
 import { getCurrentUser, getUserHistoryStorage } from './accounts.js';
 
 const quick = assessmentMode === 'quick';
-if (!quick && !getCurrentUser()) {
+if (!quick && !await getCurrentUser()) {
   window.location.replace('login.html');
 } else {
 const get = (id) => document.getElementById(id);
@@ -15,7 +15,7 @@ let session;
 try { session = window.sessionStorage; } catch { session = { getItem: () => null }; }
 const recordId = quick ? null : new URLSearchParams(window.location.search).get('record');
 let historyStorage;
-try { historyStorage = quick ? null : getUserHistoryStorage(); } catch { historyStorage = { getItem() { throw new Error('Storage unavailable'); } }; }
+try { historyStorage = quick ? null : await getUserHistoryStorage(); } catch { historyStorage = { getItem() { throw new Error('Storage unavailable'); } }; }
 const context = loadResultContext(session, historyStorage, recordId);
 const result = context.result;
 let recordingName = '';
@@ -115,11 +115,12 @@ if (quick) {
 }
 get('finish-results').textContent = context.historical ? 'Back to Dashboard' : quick ? 'Finish' : 'Finish & Save to Dashboard';
 let finishing = false;
-get('finish-results').addEventListener('click', () => {
+get('finish-results').addEventListener('click', async () => {
   if (finishing) return;
   if (context.historical) { window.location.href = assessmentUrl('dashboard.html'); return; }
   if (quick) { window.location.href = assessmentUrl('login.html'); return; }
   try {
+    if (!await getCurrentUser()) { window.location.replace('login.html'); return; }
     saveRecording(historyStorage, recording);
     finishing = true;
     window.location.href = assessmentUrl('dashboard.html');

@@ -916,3 +916,5 @@ code {
   .dashboard-category { padding: 12px; }
   .dashboard-category strong { font-size: 19px; }
 }
+
+.login-status[data-tone='success'] { color: #28724d; }

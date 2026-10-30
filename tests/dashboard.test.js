@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readProfile, saveProfile, startRecording, exitRegistered, ASSESSMENT_KEYS } from '../src/profile.js';
+import { readProfile, saveProfile, startRecording, clearAssessment, ASSESSMENT_KEYS } from '../src/profile.js';
 import { calculateAssessment } from '../src/scoring.js';
 import { currentRecording, readHistory, saveRecording } from '../src/result-history.js';
 import { loadResultContext, historicalResult, recordingLabel } from '../src/result-context.js';
@@ -14,11 +14,11 @@ function storage(values = {}) {
 test('new recording clears every assessment answer while retaining profile/session state', () => {
   const session = storage(Object.fromEntries(ASSESSMENT_KEYS.map((key) => [`myhealth_${key}`, 'old'])));
   session.setItem('myhealth_profile', '{"name":"Ada"}');
-  session.setItem('myhealth_current_user_id', 'ada');
+  session.setItem('myhealth_assessment_owner', 'ada');
   session.setItem('unrelated', 'keep');
   startRecording(session, '  November Week 1  ');
   assert.equal(session.getItem('myhealth_recording_name'), 'November Week 1');
-  assert.equal(session.getItem('myhealth_current_user_id'), 'ada');
+  assert.equal(session.getItem('myhealth_assessment_owner'), 'ada');
   assert.equal(session.getItem('myhealth_profile'), '{"name":"Ada"}');
   assert.equal(session.getItem('unrelated'), 'keep');
   ASSESSMENT_KEYS.filter((key) => key !== 'recording_name').forEach((key) => assert.equal(session.getItem(`myhealth_${key}`), null));
@@ -29,7 +29,7 @@ test('new recording clears every assessment answer while retaining profile/sessi
 test('exit clears active answers and registered session but never local profile/history', () => {
   const session = storage({ myhealth_registered_session: 'true', myhealth_sleep_hours: '8' });
   const local = storage({ myhealth_profile: '{"name":"Ada"}', myhealth_history: '[{"id":"one"}]' });
-  exitRegistered(session);
+  clearAssessment(session);
   assert.equal(session.getItem('myhealth_registered_session'), null);
   assert.equal(session.getItem('myhealth_sleep_hours'), null);
   assert.equal(local.getItem('myhealth_profile'), '{"name":"Ada"}');
@@ -37,14 +37,15 @@ test('exit clears active answers and registered session but never local profile/
 });
 
 test('profile storage whitelists display fields and never passwords', () => {
-  const local = storage({ myhealth_users: JSON.stringify([{ id: 'ada', username: 'Ada', email: 'ada@test.com', avatar: '' }]) });
-  const session = storage({ myhealth_current_user_id: 'ada' });
-  saveProfile(local, { name: ' Ada ', avatar: 'https://untrusted.example/image', password: 'secret', sleep_hours: 8 }, session);
-  assert.deepEqual(readProfile(local, session), { name: 'Ada', avatar: '' });
-  assert.doesNotMatch(local.getItem('myhealth_users'), /secret|sleep_hours/);
-  saveProfile(local, { name: 'Ada', avatar: 'data:image/png;base64,AAAA' }, session);
-  assert.equal(readProfile(local, session).avatar, 'data:image/png;base64,AAAA');
-  assert.deepEqual(readProfile(storage({ myhealth_profile: 'bad' }), storage()), { name: '', avatar: '' });
+  const local = storage();
+  const user = { id: 'ada', email: 'ada@test.com', user_metadata: { username: 'Ada' } };
+  saveProfile(local, { avatar: 'https://untrusted.example/image', password: 'secret', sleep_hours: 8 }, user);
+  assert.deepEqual(readProfile(local, user), { name: 'Ada', avatar: '' });
+  assert.doesNotMatch(local.getItem('myhealth_profile_ada'), /secret|sleep_hours/);
+  saveProfile(local, { avatar: 'data:image/png;base64,AAAA' }, user);
+  assert.equal(readProfile(local, user).avatar, 'data:image/png;base64,AAAA');
+  assert.deepEqual(readProfile(local, null), { name: '', avatar: '' });
+  assert.equal(readProfile(local, { id: 'other', email: 'other@test.com' }).name, 'other@test.com');
 });
 
 test('new history includes reproducible scores, recommendations and only recognized answers', () => {

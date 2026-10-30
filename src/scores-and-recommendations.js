@@ -4,7 +4,7 @@ import { loadResultContext, recordingLabel } from './result-context.js';
 import { dateLabel } from './progress-data.js';
 import { getCurrentUser, getUserHistoryStorage } from './accounts.js';
 
-if (assessmentMode !== 'quick' && !getCurrentUser()) {
+if (assessmentMode !== 'quick' && !await getCurrentUser()) {
   window.location.replace('login.html');
 } else {
 
@@ -13,7 +13,7 @@ try { storage = window.sessionStorage; } catch { storage = { getItem: () => null
 // Reuse the exact Screen 10 engine without saving history or modifying answers.
 const recordId = assessmentMode === 'quick' ? null : new URLSearchParams(window.location.search).get('record');
 let historyStorage;
-try { historyStorage = assessmentMode === 'quick' ? null : getUserHistoryStorage(); } catch { historyStorage = { getItem() { throw new Error('Storage unavailable'); } }; }
+try { historyStorage = assessmentMode === 'quick' ? null : await getUserHistoryStorage(); } catch { historyStorage = { getItem() { throw new Error('Storage unavailable'); } }; }
 const context = loadResultContext(storage, historyStorage, recordId);
 const result = context.result;
 const answers = context.historical ? null : readAssessment(storage);
