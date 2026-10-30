@@ -535,3 +535,39 @@ code {
   .activity-option-icon { flex-basis: 28px; height: 28px; }
   .physical-activity-page .assessment-actions button { font-size: 16px; padding-inline: 14px; }
 }
+
+/* Diet & Vitality uses the shared assessment layout with soft green accents. */
+.diet-page { background: radial-gradient(ellipse at top right, #e0f2e590, transparent 55%), #f7fbf7; }
+.diet-page .assessment-intro h1, .diet-page .assessment-progress p { color: #286344; }
+.diet-page .assessment-progress progress,
+.diet-page .assessment-progress progress::-webkit-progress-bar { background: #dcece0; }
+.diet-page .assessment-progress progress::-webkit-progress-value { background: #357451; }
+.diet-page .assessment-progress progress::-moz-progress-bar { background: #357451; }
+.diet-page .assessment-section-icon { flex-shrink: 0; width: 36px; height: 38px; border-radius: 12px; background: #e6f3e9; color: #357451; font-size: 24px; }
+.diet-page .assessment-card h2 { gap: 10px; font-size: 20px; }
+.diet-subtitle { color: #56645b; font-size: 14px; margin: -8px 0 20px; }
+.diet-options { display: grid; gap: 10px; }
+.diet-options button { padding: 16px; border: 2px solid transparent; border-radius: 16px; background: #f0f6f1; text-align: left; color: #23392b; }
+.diet-options button[aria-pressed='true'] { background: #e0f0e4; border-color: #74a685; }
+.diet-options strong { display: block; font-size: 16px; }
+.diet-options small { display: block; margin-top: 5px; color: #56645b; font-size: 14px; line-height: 1.5; }
+.diet-fruit button { display: flex; align-items: center; gap: 12px; }
+.diet-dot { display: grid; place-items: center; flex: 0 0 20px; width: 20px; height: 20px; border-radius: 50%; background: #d9e7dd; color: transparent; font: bold 13px/1 system-ui, sans-serif; }
+[aria-pressed='true'] > .diet-dot, [aria-pressed='true'] .diet-tile-top .diet-dot { background: #357451; color: white; }
+.diet-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.diet-tile-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; color: #357451; font-size: 20px; }
+.diet-calories { display: flex; flex-wrap: wrap; gap: 8px; }
+.diet-calories button { min-height: 44px; padding: 10px 14px; border-radius: 12px; background: #f0f6f1; color: #35513e; font-size: 14px; }
+.diet-calories button[aria-pressed='true'] { background: #357451; color: white; }
+.diet-calories #skip-calories { background: #e3ece5; }
+.diet-exact-label { display: block; color: #56645b; font-size: 14px; margin: 20px 0 8px; }
+.diet-exact-field { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border: 1px solid #d5e4d9; border-radius: 12px; background: #f5f9f5; }
+.diet-exact-field input { width: 100%; min-width: 0; padding: 0; border: 0; background: transparent; color: #23392b; font: inherit; }
+.diet-exact-field > span { color: #56645b; font-size: 13px; }
+.diet-page .assessment-actions { margin-top: 26px; }
+.diet-page .assessment-actions button { padding-inline: 18px; }
+.diet-page .assessment-actions #diet-continue { flex: 1; background: #357451; color: white; }
+@media (max-width: 360px) {
+  .diet-options button { padding: 12px; }
+  .diet-page .assessment-actions button { font-size: 16px; padding-inline: 12px; }
+}
