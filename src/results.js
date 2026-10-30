@@ -1,6 +1,6 @@
 import { assessmentMode, assessmentUrl, setupAvatar } from './assessment.js';
 import { calculateAssessment, interpretScore } from './scoring.js';
-import { createRecording, readHistory, previousRecording, saveRecording } from './result-history.js';
+import { currentRecording, readHistory, previousRecording, saveRecording } from './result-history.js';
 
 const quick = assessmentMode === 'quick';
 const get = (id) => document.getElementById(id);
@@ -11,7 +11,7 @@ const result = calculateAssessment(session);
 let recordingName = 'Current Recording';
 try { recordingName = session.getItem('myhealth_recording_name')?.trim() || recordingName; } catch { /* Use the fallback. */ }
 get('recording-name').textContent = quick ? new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : recordingName;
-const recording = createRecording(result, recordingName);
+const recording = currentRecording(result, recordingName, session);
 const score = result.overallScore;
 get('overall-card').dataset.scoreTone = result.interpretation.tone;
 get('overall-score').value = score === null ? '—' : score.toFixed(1);

@@ -27,3 +27,23 @@ export function createRecording(result, name, date = new Date(), id = `${Date.no
     domainScores: Object.fromEntries(result.domains.map((domain) => [domain.id, domain.score === null ? null : Math.round(domain.score * 10) / 10])),
   };
 }
+
+// Share the unsaved result's identity across Results and Progress. Only session
+// metadata is written here; saveRecording remains the only history writer.
+export function currentRecording(result, name, session, now = new Date()) {
+  const record = createRecording(result, name, now);
+  const signature = JSON.stringify([name, record.overallScore, record.completeness, record.domainScores]);
+  try {
+    const previous = JSON.parse(session.getItem('myhealth_current_result_identity'));
+    if (previous?.signature === signature && typeof previous.id === 'string' && Number.isFinite(Date.parse(previous.date))) {
+      record.id = previous.id;
+      record.date = previous.date;
+    } else {
+      session.setItem('myhealth_current_result_identity', JSON.stringify({ signature, id: record.id, date: record.date }));
+    }
+  } catch {
+    // Unavailable storage or malformed metadata must not prevent viewing results.
+    try { session.setItem('myhealth_current_result_identity', JSON.stringify({ signature, id: record.id, date: record.date })); } catch { /* Keep this in-memory identity. */ }
+  }
+  return record;
+}

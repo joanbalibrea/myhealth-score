@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Your MyHealth wellness scores across completed assessments." />
+    <title>Your Progress | MyHealth Score</title>
+    <link rel="stylesheet" href="../src/style.css" />
+  </head>
+  <body class="assessment-page results-page progress-page">
+    <div class="assessment-screen">
+      <header class="assessment-header">
+        <div class="login-logo progress-logo" aria-hidden="true">♥<span></span></div>
+        <div class="assessment-header-title"><strong>MyHealth Score</strong><span>Analytics Progress</span></div>
+        <button id="profile-avatar" class="assessment-avatar" type="button" aria-label="Choose profile image" hidden>
+          <svg id="default-avatar" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="14" r="7"/><path d="M7 37v-5a13 13 0 0 1 26 0v5Z"/></svg>
+          <img id="avatar-preview" alt="Your selected profile image" hidden />
+        </button>
+        <input id="avatar-input" type="file" accept="image/*" hidden />
+      </header>
+      <main>
+        <nav class="progress-navigation" aria-label="Results navigation"><a href="results.html" data-progress-results>← Back to Results</a><a href="dashboard.html" data-progress-dashboard>Profile Dashboard</a></nav>
+        <div id="progress-quick-message" class="assessment-card" hidden><p>Progress tracking is available for saved user recordings. Return to Results to finish your Quick Launcher assessment.</p></div>
+        <div id="registered-progress" hidden>
+          <div class="assessment-intro"><h1>Your Progress</h1><p>Your wellness scores across completed assessments.</p></div>
+          <section class="assessment-card progress-insights" aria-labelledby="growth-heading">
+            <div class="results-heading-row"><h2 id="growth-heading">Key Growth Insights</h2><span id="growth-trend" class="progress-trend-badge" hidden></span></div>
+            <p id="growth-description"></p><p id="growth-improvement" hidden></p>
+          </section>
+          <p id="history-status" class="progress-notice" role="status" hidden></p>
+          <section class="assessment-card" aria-labelledby="overall-chart-heading">
+            <div class="results-heading-row"><h2 id="overall-chart-heading">Overall MyHealth Score</h2><strong id="current-progress-score" class="progress-current-score">N/A</strong></div>
+            <div id="overall-chart" class="progress-chart-scroll" tabindex="0" aria-label="Overall score chart; scroll horizontally for more recordings"></div>
+            <p id="overall-empty" class="progress-chart-note" hidden>No scored overall measurement is available yet. Add assessment answers to see a score here.</p>
+          </section>
+          <section class="assessment-card" aria-labelledby="category-chart-heading">
+            <h2 id="category-chart-heading">Category Breakdown</h2>
+            <p class="progress-chart-note">Select categories to show or hide their scores. Gaps indicate unanswered categories.</p>
+            <div id="domain-legend" class="progress-legend" role="group" aria-label="Visible categories"></div>
+            <div id="category-chart" class="progress-chart-scroll" tabindex="0" aria-label="Category score chart; scroll horizontally for more recordings"></div>
+            <p id="category-selection-status" class="progress-chart-note" aria-live="polite"></p>
+          </section>
+          <section class="assessment-card progress-latest" aria-labelledby="latest-heading"><h2 id="latest-heading">Latest Check-in</h2><p id="latest-recording-name"></p><div id="latest-domain-scores"></div></section>
+        </div>
+        <nav class="progress-navigation progress-bottom-navigation" aria-label="Bottom results navigation"><a href="results.html" data-progress-results>← Back to Results</a><a href="dashboard.html" data-progress-dashboard>Profile Dashboard</a></nav>
+      </main>
+    </div>
+    <script type="module" src="../src/progress.js"></script>
+  </body>
+</html>
