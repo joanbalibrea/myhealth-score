@@ -792,3 +792,36 @@ code {
   .results-heading-row { flex-wrap: wrap; }
   #trend-visual { width: 80px; }
 }
+
+/* Category breakdown reuses the results score tones independently of title colors. */
+.recommendations-return { display: inline-block; margin: 0 0 20px; padding: 6px 12px; border-radius: 30px; background: #eaedff; color: #1557b9; text-decoration: none; font-size: 13px; }
+.recommendations-highlights { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.recommendations-summary { padding: 16px; min-width: 0; }
+.recommendations-page .recommendations-summary h2 { font-size: 13px; color: #626a7d; margin-bottom: 12px; }
+.recommendation-domain-name { font-weight: bold; min-height: 48px; line-height: 1.4; overflow-wrap: anywhere; }
+.recommendation-score { flex-shrink: 0; color: var(--score-color, #626a7d); white-space: nowrap; }
+.recommendation-score strong { font-size: 23px; }
+.recommendation-score span { font-size: 12px; }
+.recommendations-summary .recommendation-score { margin: 8px 0; }
+.recommendations-empty { margin-top: 10px; font-size: 12px; color: #626a7d; }
+.recommendations-page .recommendations-explanation { background: #eff1ff; color: #555b70; font-size: 13px; line-height: 1.7; }
+.recommendations-page .recommendations-explanation h2 { font-size: 16px; margin-bottom: 8px; }
+.recommendation-domain-header { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
+.recommendations-page .recommendation-domain-header h2 { flex: 1 1 150px; margin: 0; font-size: 20px; }
+.recommendation-focus { padding: 3px 8px; border-radius: 20px; background: #fff0d9; color: #935b20; font-size: 11px; font-weight: bold; }
+.recommendation-bar { display: block; appearance: none; -webkit-appearance: none; width: 100%; height: 7px; border: 0; border-radius: 20px; overflow: hidden; background: #eaedff; accent-color: var(--score-color); }
+.recommendation-bar::-webkit-progress-bar { background: #eaedff; }
+.recommendation-bar::-webkit-progress-value { background: var(--score-color); border-radius: 20px; }
+.recommendation-bar::-moz-progress-bar { background: var(--score-color); border-radius: 20px; }
+.recommendation-status { margin-top: 8px; font-size: 12px; font-weight: bold; color: var(--score-color); }
+.recommendation-comment { margin-top: 14px; padding: 14px; border-radius: 12px; background: #f5f6fc; color: #4f5669; font-size: 14px; line-height: 1.7; }
+.recommendations-page .recommendation-high-alert { background: #fff0ed; border: 1px solid #dfaca4; border-left: 5px solid #ad4e55; }
+.recommendations-page .recommendation-high-alert h2 { color: #98454c; font-size: 18px; margin-bottom: 10px; }
+.recommendation-high-alert p { color: #67474b; font-size: 14px; }
+.recommendations-disclaimer { margin-top: 24px; text-align: center; font-size: 12px; color: #626a7d; line-height: 1.8; }
+.recommendations-bottom-return { display: block; padding: 15px; margin-top: 26px; border-radius: 40px; text-align: center; background: #1557b9; color: white; text-decoration: none; font-size: 17px; font-weight: bold; }
+@media (max-width: 360px) {
+  .recommendations-highlights { gap: 8px; }
+  .recommendations-summary { padding: 12px; }
+  .recommendation-domain-name { font-size: 14px; }
+}

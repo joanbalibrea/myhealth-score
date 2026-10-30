@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Your MyHealth category breakdown and personalized educational lifestyle guidance." />
+    <title>Your Health Profile | MyHealth Score</title>
+    <link rel="stylesheet" href="../src/style.css" />
+  </head>
+  <body class="assessment-page results-page recommendations-page">
+    <div class="assessment-screen">
+      <header class="assessment-header">
+        <a class="assessment-icon-button" href="results.html" data-return-results aria-label="Back to Results">←</a>
+        <div class="assessment-header-title"><strong>Assessment Results</strong><span id="recording-name">Current Recording</span></div>
+        <a class="assessment-icon-button" href="login.html" aria-label="Exit assessment">×</a>
+        <button id="profile-avatar" class="assessment-avatar" type="button" aria-label="Choose profile image" hidden>
+          <svg id="default-avatar" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="14" r="7"/><path d="M7 37v-5a13 13 0 0 1 26 0v5Z"/></svg>
+          <img id="avatar-preview" alt="Your selected profile image" hidden />
+        </button>
+        <input id="avatar-input" type="file" accept="image/*" hidden />
+      </header>
+      <main>
+        <a class="recommendations-return" href="results.html" data-return-results>← &nbsp; Back to Results</a>
+        <div class="assessment-intro"><h1>Your Health Profile</h1><p>Category breakdown and personalized lifestyle guidance based on the information you provided.</p></div>
+        <div class="recommendations-highlights">
+          <section id="top-strength" class="assessment-card recommendations-summary" aria-labelledby="strength-heading"><h2 id="strength-heading">Top Strength</h2><div data-highlight-content></div></section>
+          <section id="focus-area" class="assessment-card recommendations-summary" aria-labelledby="focus-heading"><h2 id="focus-heading">Focus Area</h2><div data-highlight-content></div></section>
+        </div>
+        <aside class="assessment-card recommendations-explanation"><h2>How your scores are calculated</h2><p>Each category score is calculated from the answers you provided for that area. More favorable values receive higher scores, unanswered optional items are excluded rather than treated as zero, and each category is reported on a 0–10 scale.</p></aside>
+        <section id="recommendation-alerts" class="recommendation-alerts" aria-label="High-priority measurement alerts" hidden></section>
+        <div id="domain-cards"></div>
+        <p class="assessment-card recommendations-disclaimer">Suggestions are for lifestyle guidance and educational enrichment. Always consult a qualified health professional for clinical diagnosis.</p>
+        <a class="recommendations-bottom-return" href="results.html" data-return-results>← &nbsp; Back to Results</a>
+      </main>
+    </div>
+    <script type="module" src="../src/scores-and-recommendations.js"></script>
+  </body>
+</html>

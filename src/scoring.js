@@ -204,3 +204,80 @@ export function calculateAssessment(storage) {
     insight: { strong: available.length > 0 && available.every((domain) => domain.score >= 8), domains: weakest.filter((domain) => domain.score < 8).slice(0, 2) },
   };
 }
+
+// Recommendations use existing scored components; they never alter a score.
+export function domainHighlights(domains) {
+  const available = domains.filter((domain) => domain.score !== null && Number.isFinite(domain.score));
+  const sorted = [...available].sort((a, b) => a.score - b.score);
+  return { highest: sorted.at(-1) ?? null, lowest: sorted[0] ?? null };
+}
+
+export function domainRecommendation(domain, a) {
+  if (domain.score === null) return 'Not enough information was provided to calculate this category.';
+  const available = domain.items.filter((item) => item.score !== null);
+  const weakest = [...available].sort((left, right) => left.score - right.score)[0];
+  const name = weakest.name;
+  const allFavorable = available.every((item) => item.score >= 8);
+
+  if (domain.id === 'body') {
+    if (name === 'Waist-to-height ratio' && a.wthr >= 0.5) return 'Your waist-to-height ratio is above the reference range. Gradually reducing waist circumference relative to height may improve your body-composition profile.';
+    if (a.bmi >= 25 && a.wthr !== null && a.wthr >= 0.4 && a.wthr < 0.5) return 'Your BMI is above the standard reference range, while your waist-to-height ratio remains favorable. BMI is a screening measure and does not distinguish muscle from body fat.';
+    if (allFavorable) return 'Your reported body-composition indicators are within favorable reference ranges.';
+    if (name === 'BMI' && a.bmi < 18.5) return 'Your reported BMI is below the standard reference range. BMI is a screening measure; nutrition, body composition, and your personal context may be worth reviewing with a qualified professional.';
+    if (name === 'BMI') return 'Your reported BMI is above the standard reference range. BMI does not distinguish muscle from body fat; review it alongside waist measurements and personal context.';
+    return 'Your reported waist-to-height ratio is below the reference band used by this wellness index. Interpret this screening measure alongside your other measurements and personal context.';
+  }
+  if (domain.id === 'activity') {
+    if (allFavorable) return 'Your current movement pattern shows a strong activity profile across the indicators provided. Maintaining regular movement across the week will help preserve this score.';
+    if (name === 'Steps') return 'Your movement volume is the main opportunity in this category. Gradually increasing walking and everyday activity could improve your score.';
+    if (name === 'Active days') return 'Active-day frequency is the main opportunity in this category. Try spreading physical activity across more days of the week rather than concentrating it into only one or two days.';
+    return 'Light intensity is the lowest-scoring activity indicator you reported. If comfortable and appropriate for you, gradually adding some moderate-intensity movement could improve this category.';
+  }
+  if (domain.id === 'diet') {
+    if (allFavorable) return 'Your reported dietary pattern is generally favorable across the scored indicators.';
+    if (name === 'Sugary drinks') return 'Sugary-drink frequency is the main factor reducing this score. Replacing some sugary drinks with water or unsweetened alternatives could improve your diet profile.';
+    if (name === 'Ultra-processed meals') return 'Ultra-processed meal frequency is the main opportunity for improvement. Choosing more minimally processed meals when practical could improve this category.';
+    return 'Increasing fruit and vegetable intake is the clearest opportunity in this category.';
+  }
+  if (domain.id === 'sleep') {
+    if (allFavorable) return 'Your reported sleep indicators are generally favorable across the answers provided.';
+    if (name === 'Duration') return a.sleep_hours < 7 ? 'Your reported sleep duration is below the usual adult target. Increasing sleep opportunity toward 7–9 hours may improve recovery.' : 'Your reported sleep duration is above the usual adult target of 7–9 hours. Sleep regularity and your personal recovery needs may be worth reviewing.';
+    if (name === 'Phone use') return 'Phone use before sleep is the main opportunity in this category. Reducing screen use close to bedtime may help create a more consistent wind-down routine.';
+    if (name === 'Naps') return 'Long daytime sleep is the lowest-scoring sleep indicator you reported. Long daytime sleep may make it harder to fall asleep or maintain a regular sleep schedule at night.';
+    if (a.sleep_hours !== null && a.sleep_hours >= 7 && a.sleep_hours <= 9) return 'Your sleep duration is adequate, but perceived sleep quality is lower. Sleep regularity and factors that interrupt sleep may be worth reviewing.';
+    return 'Perceived sleep quality is the main opportunity in this category. Sleep regularity and factors that interrupt sleep may be worth reviewing.';
+  }
+  if (domain.id === 'mental') {
+    let message;
+    if (domain.score <= 3) message = 'Your responses indicate a high current mental-wellbeing burden. If these feelings are persistent, worsening, or interfering with daily life, consider seeking professional support.';
+    else if (allFavorable) message = 'Your reported mental-wellbeing indicators suggest a favorable current profile across the answers provided.';
+    else if (name === 'Stress') message = 'Stress is the main factor lowering this score. Regular physical activity, relaxation techniques, social support, and time for activities you enjoy may help.';
+    else if (name === 'Anxiety') message = 'Anxiety frequency is contributing to this score. If it persists or interferes with daily functioning, consider discussing it with a mental-health professional.';
+    else message = 'Your reported emotional tone is the main factor lowering this category. Time for restorative activities and connection with people you trust may help support your wellbeing.';
+    if (a.support_history === 'current_support') message += ' You indicated that you are already receiving professional support; consider continuing to discuss persistent symptoms with your provider.';
+    return message;
+  }
+  if (domain.id === 'lifestyle') {
+    if (allFavorable) return 'Your reported lifestyle habits are generally favorable across the scored indicators.';
+    if (name === 'Tobacco') {
+      if (a.smoking_status === 'current') return 'Current tobacco use is the main factor reducing this score. Reducing or stopping smoking can substantially improve long-term health; professional cessation support can help.';
+      if (a.smoking_status === 'passive') return 'Regular secondhand smoke exposure is contributing to this score. Reducing exposure where possible may improve your lifestyle profile.';
+      return 'Your time since quitting smoking contributes to this category. Maintaining your smoke-free routine supports your lifestyle profile.';
+    }
+    if (name === 'Alcohol') return 'Alcohol intake is one of the main factors reducing this category. Reducing weekly intake would improve the score.';
+    if (name === 'Caffeine') return 'Caffeine intake is contributing to this score. Reducing intake may be particularly useful if it affects sleep, anxiety, or restlessness.';
+    return 'Recreational substance-use frequency is lowering this category score. Reducing frequency may improve the profile; seek professional advice if use is difficult to control or causes problems.';
+  }
+  if (domain.id === 'vitals') {
+    if (name === 'Blood pressure') {
+      const bp = scoreBloodPressure(a.systolic_bp, a.diastolic_bp);
+      if (bp.alerts.some((alert) => alert.priority === 'high')) return 'Your reported blood-pressure measurement triggered the high-priority reading rule. Review the highlighted alert above; this score is not a diagnosis.';
+      if (a.systolic_bp < 90 && a.diastolic_bp < 60) return 'Your reported blood pressure is in a low range. A single low reading may not be problematic, but symptoms and clinical context matter.';
+      if (a.systolic_bp >= 120 || a.diastolic_bp >= 80) return 'Your reported blood-pressure values are above the normal reference category. A single reading is not diagnostic; repeated measurements and clinical context are important.';
+    }
+    if (name === 'Resting heart rate' && (a.resting_hr < 60 || a.resting_hr > 100)) return 'Your resting heart rate is outside the typical adult reference range. Fitness level, medications, symptoms, and other factors can affect resting heart rate.';
+    if (allFavorable) return 'Your reported resting cardiovascular measurements are within favorable reference ranges across the values provided.';
+    return 'Your resting heart rate is within the typical adult reference range, but outside the highest-scoring band used by this wellness index. Interpret it alongside fitness level and measurement context.';
+  }
+  return 'Review the indicators you provided for this category in the context of your usual routine.';
+}
