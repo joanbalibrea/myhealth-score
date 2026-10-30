@@ -571,3 +571,47 @@ code {
   .diet-options button { padding: 12px; }
   .diet-page .assessment-actions button { font-size: 16px; padding-inline: 12px; }
 }
+
+/* Sleep keeps the assessment shell with a soft purple category identity. */
+.sleep-page { background: radial-gradient(ellipse at top right, #eadff690, transparent 55%), #faf7fd; }
+.sleep-page .assessment-intro h1, .sleep-page .assessment-progress p { color: #674295; }
+.sleep-page .assessment-progress progress,
+.sleep-page .assessment-progress progress::-webkit-progress-bar { background: #e9def4; }
+.sleep-page .assessment-progress progress::-webkit-progress-value { background: #8057af; }
+.sleep-page .assessment-progress progress::-moz-progress-bar { background: #8057af; }
+.sleep-page .assessment-section-icon { flex-shrink: 0; width: 36px; height: 38px; border-radius: 12px; background: #f0e8f8; color: #77509f; font-size: 24px; }
+.sleep-page .assessment-card h2 { gap: 10px; font-size: 20px; }
+.sleep-description { color: #62586c; font-size: 14px; margin: -4px 0 20px; }
+.sleep-metric { text-align: center; padding: 18px 12px; margin-bottom: 16px; border-radius: 16px; background: #f6f0fb; color: #744d9e; }
+.sleep-metric output { font-size: 46px; font-weight: bold; line-height: 1.3; }
+.sleep-metric div > span { font-size: 18px; }
+.sleep-target { margin-top: 8px; font-size: 13px; color: #654980; }
+.sleep-answer-state { margin-top: 6px; font-size: 12px; color: #71647d; }
+.sleep-page [data-answered='false'] .sleep-metric output { color: #8a7c99; }
+.sleep-adjuster { display: flex; align-items: center; gap: 14px; }
+.sleep-adjuster button { flex: 0 0 44px; height: 44px; border-radius: 50%; background: #f0e8f8; color: #674295; font-size: 24px; }
+.sleep-page input[type='range'] { display: block; width: 100%; min-width: 0; height: 30px; margin: 0; accent-color: #8057af; cursor: pointer; }
+.sleep-range-labels { display: flex; justify-content: space-between; margin-top: 8px; font-size: 12px; color: #71647d; }
+.sleep-clear { padding: 12px 0 0; background: transparent; color: #674295; text-decoration: underline; font-size: 13px !important; }
+.sleep-quality { display: grid; gap: 10px; }
+.sleep-quality button { display: flex; align-items: center; gap: 12px; padding: 14px; border: 2px solid transparent; border-radius: 16px; background: #f6f0fb; color: #30243e; text-align: left; }
+.sleep-quality button[aria-pressed='true'] { border-color: #a17cc4; background: #eee2f7; }
+.sleep-rating-number { display: grid; place-items: center; flex: 0 0 40px; height: 40px; border-radius: 50%; background: #eadef5; color: #674295; }
+.sleep-quality strong { display: block; font-size: 17px; }
+.sleep-quality small { display: block; color: #62586c; font-size: 14px; margin-top: 4px; }
+.sleep-quality-check { margin-left: auto; flex: 0 0 20px; height: 20px; border: 1px solid #cabcda; border-radius: 50%; color: transparent; text-align: center; font: bold 13px/18px system-ui, sans-serif; }
+.sleep-quality button[aria-pressed='true'] .sleep-quality-check { background: #8057af; border-color: #8057af; color: white; }
+.sleep-phone .sleep-metric output { color: var(--phone-color); }
+.sleep-phone input[type='range'] { appearance: none; -webkit-appearance: none; height: 10px; margin-block: 16px; border-radius: 20px; background: linear-gradient(to right, #7fac8c, #c7c67c, #d8aa75, #c27b7d); }
+.sleep-phone input[type='range']::-webkit-slider-thumb { appearance: none; -webkit-appearance: none; width: 22px; height: 22px; border: 3px solid white; border-radius: 50%; background: var(--phone-color); box-shadow: 0 1px 5px #30243e30; }
+.sleep-phone input[type='range']::-moz-range-thumb { width: 16px; height: 16px; border: 3px solid white; border-radius: 50%; background: var(--phone-color); box-shadow: 0 1px 5px #30243e30; }
+.sleep-page .sleep-actions { margin-top: 26px; align-items: stretch; }
+.sleep-page .sleep-actions button { padding-inline: 16px; }
+.sleep-page .sleep-actions #sleep-continue { flex: 1; min-width: 0; display: grid; grid-template-columns: 18px minmax(0, 1fr) 18px; align-items: center; gap: 6px; background: #77509f; color: white; font-size: 16px; line-height: 1.35; }
+#sleep-continue > span:first-child { grid-column: 2; text-align: center; }
+#sleep-continue > span:last-child { grid-column: 3; text-align: right; }
+@media (max-width: 380px) {
+  .sleep-page .sleep-actions { flex-direction: column; }
+  .sleep-page .sleep-actions #sleep-continue { flex: auto; }
+  .sleep-quality button { padding: 12px; gap: 10px; }
+}
