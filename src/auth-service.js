@@ -22,7 +22,6 @@ export function createAuthService(client, options = {}) {
     const owner = session.getItem('myhealth_assessment_owner');
     if (owner !== user.id) clearAssessment(session);
     session.setItem('myhealth_assessment_owner', user.id);
-    session.removeItem('myhealth_current_user_id'); // Retired prototype session only.
   }
   async function getCurrentUser() {
     try {
@@ -57,20 +56,45 @@ export function createAuthService(client, options = {}) {
     try {
       clearAssessment(sessionStorage());
       sessionStorage().removeItem('myhealth_assessment_owner');
-      sessionStorage().removeItem('myhealth_current_user_id');
     } catch { /* Supabase logout already succeeded. */ }
   }
-  async function updateCurrentUser(changes) {
+  async function requireUser() {
     const user = await getCurrentUser();
-    if (!user) throw new Error('Please sign in before changing your profile.');
-    const username = (changes.username ?? user.user_metadata?.username ?? '').trim();
-    const email = (changes.email ?? user.email ?? '').trim();
-    if (!username || !email) throw new Error('Username and email are required.');
-    const attributes = { data: { username } };
-    if (email !== user.email) attributes.email = email;
-    const { data, error } = await client.auth.updateUser(attributes);
-    if (error) throw new Error(authErrorMessage(error));
+    if (!user) throw new Error('Please sign in before changing your account.');
+    return user;
+  }
+  function accountError(error, operation) {
+    const code = error?.code;
+    let message;
+    if (operation === 'password' && (code === 'invalid_credentials' || code === 'current_password_mismatch' || code === 'current_password_invalid' || code === 'invalid_password' || /current password.*(incorrect|invalid)|incorrect.*current password/i.test(error?.message || ''))) {
+      message = 'Your current password is incorrect. Please try again.';
+    } else if (code === 'current_password_required') message = 'Please enter your current password.';
+    else if (code === 'reauthentication_needed') message = 'Please sign in again before changing your password.';
+    else if (code === 'same_password') message = 'Choose a new password different from your current password.';
+    else if (code === 'email_exists' || code === 'user_already_exists') message = 'This email address is already in use. Choose another address.';
+    else if (code === 'email_address_invalid' || (operation === 'email' && code === 'validation_failed')) message = 'Please enter a valid email address.';
+    else message = authErrorMessage(error);
+    // Preserve diagnostics without logging request payloads or passwords.
+    return new Error(message, { cause: { code, status: error?.status } });
+  }
+  async function changeEmail(value) {
+    const email = typeof value === 'string' ? value.trim() : '';
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('Please enter a valid email address.');
+    const user = await requireUser();
+    if (email.toLowerCase() === user.email?.toLowerCase()) throw new Error('Enter an email address different from your current email.');
+    const { data, error } = await client.auth.updateUser({ email });
+    if (error) throw accountError(error, 'email');
     return data.user;
   }
-  return { getCurrentUser, registerUser, loginUser, logoutUser, updateCurrentUser };
+  async function changePassword(currentPassword, password, confirmation) {
+    if (!currentPassword || !password || !confirmation) throw new Error('Please complete all password fields.');
+    if (password.length < 8) throw new Error('New password must contain at least 8 characters.');
+    if (password !== confirmation) throw new Error('New passwords do not match.');
+    if (password === currentPassword) throw new Error('Choose a new password different from your current password.');
+    await requireUser();
+    const { data, error } = await client.auth.updateUser({ current_password: currentPassword, password });
+    if (error) throw accountError(error, 'password');
+    return data.user;
+  }
+  return { getCurrentUser, registerUser, loginUser, logoutUser, changeEmail, changePassword };
 }

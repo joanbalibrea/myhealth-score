@@ -10,5 +10,4 @@ export const ASSESSMENT_KEYS = [
 ];
 export function clearAssessment(session) {
   ASSESSMENT_KEYS.forEach((key) => session.removeItem(`myhealth_${key}`));
-  session.removeItem('myhealth_registered_session'); // Retire the old login flag.
 }

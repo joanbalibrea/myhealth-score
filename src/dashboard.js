@@ -1,10 +1,10 @@
 import { assessmentMode, setupAvatar } from './assessment.js';
-import { readProfile, startRecording } from './profile.js';
+import { startRecording } from './profile.js';
 import { dateLabel, scoreChange, signedChange, changeDirection, chartSegments, domainComparison } from './progress-data.js';
 import { DOMAIN_INFO, interpretScore } from './scoring.js';
 import { recordingLabel } from './result-context.js';
 import { getCurrentUser, logoutUser } from './accounts.js';
-import { getRecordings } from './database.js';
+import { getProfile, getRecordings } from './database.js';
 
 const get = (id) => document.getElementById(id);
 function node(tag, className, text) {
@@ -26,9 +26,9 @@ if (assessmentMode === 'quick') {
 } else {
   get('dashboard-main').hidden = false;
   setupAvatar();
-  let profile = { name: '' };
-  try { profile = readProfile(localStorage, await getCurrentUser()); } catch { /* Profile image is independent of recording history. */ }
-  get('dashboard-greeting').textContent = `Hello, ${profile.name || 'there'}`;
+  let profile = { username: '' };
+  try { profile = await getProfile(); } catch (error) { console.error('Unable to load Dashboard profile:', error); }
+  get('dashboard-greeting').textContent = `Hello, ${profile.username || 'there'}`;
   get('new-recording-form').addEventListener('submit', (event) => {
     event.preventDefault();
     try {
