@@ -34,7 +34,7 @@
           <div class="results-heading-row"><h2 id="completeness-heading">Assessment Completeness</h2><strong id="completeness-value">0%</strong></div>
           <p id="completeness-label">Limited data</p>
           <progress id="completeness-progress" max="100" value="0" aria-label="Assessment completeness"></progress>
-          <p class="results-explanation">This indicates how complete your assessment is based on the information you provided. It does not represent diagnostic certainty.</p>
+          <p class="results-explanation">This percentage is the share of applicable questions you answered. It measures assessment completeness, not your health score or diagnostic certainty.</p>
         </section>
         <section class="assessment-card" aria-labelledby="insight-heading"><h2 id="insight-heading" class="results-small-heading">Key Insight</h2><p id="key-insight" class="results-insight"></p></section>
         <div id="reading-notes" class="results-reading-notes" hidden aria-live="polite"></div>
@@ -53,8 +53,10 @@
         <details class="assessment-card results-method"><summary>How this score works</summary><p>Only answered scoring items contribute. Each domain is weighted by its available scoring coverage; unanswered domains are N/A. Age, sex, calories, sport, and support history do not change the score. Completeness includes contextual answers and applicable follow-up questions.</p><p>The current four mood choices map to 1, 6, 8, and 10 from least to most favorable. Combined Rarely / Never anxiety maps to 9; a few days to 6; most days to 3. Substance-frequency ranges use midpoint scores. Former smoking needs a quit duration; current smoking needs a cigarettes/day category to contribute a tobacco score.</p></details>
         <p id="results-status" class="assessment-error" role="alert"></p>
         <div class="assessment-actions results-actions"><button id="finish-results" type="button">Finish &amp; Save to Dashboard</button><button type="button" data-results-back>← &nbsp; Back</button></div>
+        <a id="dashboard-without-saving" class="ui-secondary-link" href="dashboard.html?mode=registered" hidden>Go to Dashboard without saving</a>
       </main>
     </div>
     <script type="module" src="../src/results.js"></script>
+    <script type="module" src="../src/visual-design.js"></script>
   </body>
 </html>

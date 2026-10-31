@@ -1,3 +1,4 @@
+import { uiIcon } from './ui-icons.js';
 import { assessmentMode, assessmentUrl, setupAvatar } from './assessment.js';
 import { calculateAssessment, interpretScore } from './scoring.js';
 import { currentRecording, previousRecording, markRecordingSaved } from './result-history.js';
@@ -13,6 +14,13 @@ if (!quick && !await getCurrentUser()) {
   window.location.replace('login.html');
 } else {
 const get = (id) => document.getElementById(id);
+for (const [id, icon] of [['completeness-heading', 'checklist'], ['insight-heading', 'insight']]) {
+  const wrapper = document.createElement('span');
+  wrapper.className = 'assessment-section-icon';
+  wrapper.setAttribute('aria-hidden', 'true');
+  wrapper.append(uiIcon(icon));
+  get(id).prepend(wrapper);
+}
 // Storage access can itself throw when browser storage is blocked.
 let session;
 try { session = window.sessionStorage; } catch { session = { getItem: () => null }; }
@@ -32,6 +40,7 @@ if (recordId !== null) {
   context = loadResultContext(session);
 }
 const result = context.result;
+get('dashboard-without-saving').hidden = quick || context.historical;
 if (context.historical) {
   document.querySelectorAll('[data-results-back], [aria-label="Exit assessment"]').forEach((control) => { control.hidden = true; });
 }

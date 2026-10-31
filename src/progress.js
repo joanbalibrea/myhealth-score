@@ -1,7 +1,9 @@
+import { renderScoreChart } from './score-chart.js';
+import { uiIcon, categoryIcons } from './ui-icons.js';
 import { assessmentMode, setupAvatar } from './assessment.js';
 import { calculateAssessment, DOMAIN_INFO } from './scoring.js';
 import { currentRecording } from './result-history.js';
-import { buildProgress, dateLabel, signedChange, changeDirection, chartSegments, domainComparison } from './progress-data.js';
+import { buildProgress, buildHistoricalProgress, dateLabel, signedChange, changeDirection, domainComparison } from './progress-data.js';
 import { getCurrentUser } from './accounts.js';
 import { getRecordings } from './database.js';
 import { resultUrl } from './result-navigation.js';
@@ -11,12 +13,6 @@ const domainName = (domain) => domain.id === 'vitals' ? 'Cardiovascular & Vitals
 function node(tag, className, text) {
   const result = document.createElement(tag);
   if (className) result.className = className;
-  if (text !== undefined) result.textContent = text;
-  return result;
-}
-function svgNode(tag, attributes = {}, text) {
-  const result = document.createElementNS('http://www.w3.org/2000/svg', tag);
-  Object.entries(attributes).forEach(([key, value]) => result.setAttribute(key, String(value)));
   if (text !== undefined) result.textContent = text;
   return result;
 }
@@ -42,10 +38,17 @@ if (assessmentMode === 'quick') {
   get('history-status').textContent = 'Loading recordings…';
   get('retry-progress').addEventListener('click', () => window.location.reload());
   let savedRecordings = null;
-  try { savedRecordings = await getRecordings(); }
+  let historicalModel = null;
+  try {
+    const history = await getRecordings();
+    if (recordId !== null) historicalModel = buildHistoricalProgress(history, recordId);
+    savedRecordings = history;
+  }
   catch (error) {
     console.error('Unable to load Progress recordings:', error);
-    get('history-status').textContent = "We couldn't load your recordings. Please try again.";
+    get('history-status').textContent = recordId !== null
+      ? "We couldn't load this recording. It may no longer be available or you may not have access. Please return to Results or try again."
+      : "We couldn't load your recordings. Please try again.";
     get('retry-progress').hidden = false;
   }
   if (savedRecordings !== null) {
@@ -53,9 +56,16 @@ if (assessmentMode === 'quick') {
   get('registered-progress').hidden = false;
   const assessment = savedOnly ? null : calculateAssessment(session);
   const draft = assessment && assessment.overallScore !== null ? currentRecording(assessment, name, session) : null;
-  const model = buildProgress(savedRecordings, draft);
+  const model = historicalModel ?? buildProgress(savedRecordings, draft);
   const current = model.current;
   get('current-progress-score').textContent = current?.overallScore == null ? 'N/A' : current.overallScore.toFixed(1);
+  const overallDelta = node('span', 'progress-overall-delta', model.delta === null ? (!model.previous && current ? 'First measurement' : 'No previous comparison') : signedChange(model.delta) + ' pts');
+  overallDelta.dataset.direction = changeDirection(model.delta);
+  const getScoreElement = get('current-progress-score');
+  const scoreStack = node('div', 'progress-score-stack');
+  get('current-progress-score').replaceWith(scoreStack);
+  scoreStack.append(getScoreElement, overallDelta);
+  scoreStack.parentElement.after(node('p', 'ui-comparison-note', 'Points are the difference from the previous recording on the 0–10 score scale. Category changes use the same comparison.'));
   get('latest-recording-name').textContent = current ? recordLabel(current) : 'No recordings yet';
   if (!model.previous) {
     get('growth-description').append(node('strong', '', current ? 'No past recordings' : 'No recordings yet'), node('span', 'progress-first-description', !current ? 'Complete your first health recording to start tracking progress.' : 'This is your first recorded assessment. Future check-ins will appear here for comparison.'));
@@ -77,42 +87,7 @@ if (assessmentMode === 'quick') {
   }
 
   function drawChart(container, series, chartName) {
-    container.replaceChildren();
-    const width = Math.max(520, model.records.length * 110);
-    const svg = svgNode('svg', { viewBox: `0 0 ${width} 290`, role: 'img', 'aria-label': chartName });
-    svg.style.minWidth = `${width}px`;
-    svg.append(svgNode('title', {}, chartName), svgNode('desc', {}, 'Scores range from zero to ten. Each point represents one recording. Missing measurements leave gaps. An unsaved current assessment is labeled CURRENT when present.'));
-    for (let score = 0; score <= 10; score += 2) {
-      const y = 210 - score * 18;
-      svg.append(svgNode('line', { x1: 38, x2: width - 18, y1: y, y2: y, class: 'progress-grid-line' }));
-      svg.append(svgNode('text', { x: 27, y: y + 4, 'text-anchor': 'end', class: 'progress-axis-label' }, score));
-    }
-    model.records.forEach((record, index) => {
-      const x = model.records.length === 1 ? (38 + width - 18) / 2 : 38 + index * (width - 56) / (model.records.length - 1);
-      // Keep labels inside the chart at either edge, including long names.
-      const anchor = model.records.length === 1 ? 'middle' : index === 0 ? 'start' : index === model.records.length - 1 ? 'end' : 'middle';
-      const text = svgNode('text', { x, y: 235, 'text-anchor': anchor, class: 'progress-axis-label' });
-      const label = recordLabel(record);
-      const chunks = label.match(/.{1,16}/g) || [''];
-      chunks.slice(0, 2).forEach((chunk, line) => text.append(svgNode('tspan', { x, dy: line ? 14 : 0 }, line === 1 && chunks.length > 2 ? `${chunk.slice(0, 13)}…` : chunk)));
-      text.append(svgNode('title', {}, label));
-      svg.append(text);
-      if (record.current) svg.append(svgNode('text', { x, y: 276, 'text-anchor': anchor, class: 'progress-current-label' }, 'CURRENT'));
-    });
-    series.forEach((entry) => {
-      const group = svgNode('g', { 'data-series-id': entry.id, style: `color: ${entry.color}` });
-      chartSegments(model.records, entry.select, width).forEach((segment) => {
-        if (segment.length > 1) group.append(svgNode('polyline', { points: segment.map((point) => `${point.x},${point.y}`).join(' '), fill: 'none', stroke: 'currentColor', 'stroke-width': 2.5, 'vector-effect': 'non-scaling-stroke' }));
-        segment.forEach((point) => {
-          const label = `${recordLabel(point.record)}: ${entry.name} ${point.score.toFixed(1)} out of 10${point.record.current ? ', current assessment' : ''}`;
-          const circle = svgNode('circle', { cx: point.x, cy: point.y, r: point.record.current ? 5.5 : 4, fill: 'white', stroke: 'currentColor', 'stroke-width': 2.5, tabindex: 0, 'aria-label': label });
-          circle.append(svgNode('title', {}, label));
-          group.append(circle);
-        });
-      });
-      svg.append(group);
-    });
-    container.append(svg);
+    renderScoreChart(container, model.records, series, recordLabel, chartName, container.id === 'overall-chart');
   }
 
   drawChart(get('overall-chart'), [{ id: 'overall', name: 'Overall score', color: '#1557b9', select: (record) => record.overallScore }], 'Overall MyHealth Score across recordings');
@@ -126,6 +101,7 @@ if (assessmentMode === 'quick') {
   DOMAIN_INFO.forEach((domain) => {
     const available = model.records.some((record) => record.domainScores[domain.id] !== null);
     const button = node('button', 'progress-legend-pill', domainName(domain));
+    button.prepend(uiIcon(categoryIcons[domain.id]));
     button.type = 'button';
     button.style.setProperty('--domain-color', domain.color);
     button.disabled = !available;
@@ -146,9 +122,10 @@ if (assessmentMode === 'quick') {
     const row = node('div', 'progress-latest-row');
     const label = node('strong', '', domainName(domain));
     label.style.color = domain.color;
+    label.prepend(uiIcon(categoryIcons[domain.id]));
     const score = node('span', '', domain.score.toFixed(1));
     const comparison = domainComparison(model.current, model.previous, domain.id);
-    const change = node('span', 'progress-domain-change', comparison.text);
+    const change = node('span', 'progress-domain-change', comparison.delta === null ? comparison.text : signedChange(comparison.delta) + ' pts');
     change.dataset.direction = comparison.direction;
     row.append(label, score, change);
     get('latest-domain-scores').append(row);
