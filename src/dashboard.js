@@ -4,7 +4,7 @@ import { dateLabel, scoreChange, signedChange, changeDirection, chartSegments, d
 import { DOMAIN_INFO, interpretScore } from './scoring.js';
 import { recordingLabel } from './result-context.js';
 import { getCurrentUser, logoutUser } from './accounts.js';
-import { getProfile, getRecordings } from './database.js';
+import { getProfile, getRecordings, deleteRecording } from './database.js';
 
 const get = (id) => document.getElementById(id);
 function node(tag, className, text) {
@@ -41,6 +41,30 @@ if (assessmentMode === 'quick') {
     try { await logoutUser(); window.location.href = 'login.html'; }
     catch (error) { get('dashboard-status').textContent = error.message || 'Unable to sign out. Please try again.'; }
     finally { get('dashboard-exit').disabled = false; }
+  });
+  const deleteDialog = get('delete-recording-dialog');
+  let pendingDeletion = null;
+  let deleting = false;
+  get('cancel-delete-recording').addEventListener('click', () => deleteDialog.close());
+  deleteDialog.addEventListener('cancel', (event) => { if (deleting) event.preventDefault(); });
+  deleteDialog.addEventListener('close', () => { pendingDeletion = null; });
+  get('confirm-delete-recording').addEventListener('click', async () => {
+    if (!pendingDeletion || deleting) return;
+    deleting = true;
+    get('confirm-delete-recording').disabled = true;
+    get('cancel-delete-recording').disabled = true;
+    get('delete-recording-status').textContent = 'Deleting recording…';
+    try { await deleteRecording(pendingDeletion); }
+    catch (error) {
+      console.error('Unable to delete Dashboard recording:', error);
+      get('delete-recording-status').textContent = "We couldn't delete this recording. Please try again.";
+      deleting = false;
+      get('confirm-delete-recording').disabled = false;
+      get('cancel-delete-recording').disabled = false;
+      return;
+    }
+    // Re-fetch and rebuild every Dashboard section through its normal load path.
+    window.location.reload();
   });
   get('retry-recordings').addEventListener('click', () => window.location.reload());
   get('dashboard-status').textContent = 'Loading recordings…';
@@ -122,7 +146,24 @@ if (assessmentMode === 'quick') {
       const badge = node('span', 'dashboard-score-badge', record.overallScore === null ? 'N/A' : `${record.overallScore.toFixed(1)} / 10`);
       badge.dataset.scoreTone = interpretScore(record.overallScore).tone;
       link.append(text, badge, node('span', 'dashboard-history-arrow', '›'));
-      list.append(link);
+      const row = node('div', 'dashboard-history-row');
+      const remove = node('button', 'dashboard-delete-recording');
+      remove.type = 'button';
+      remove.setAttribute('aria-label', 'Delete recording: ' + recordingLabel(record));
+      remove.title = 'Delete recording';
+      const icon = svgNode('svg', { viewBox: '0 0 24 24', width: 20, height: 20, fill: 'none', stroke: 'currentColor', 'stroke-width': 1.8, 'aria-hidden': 'true' });
+      icon.append(svgNode('path', { d: 'M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7M14 10v7' }));
+      remove.append(icon);
+      remove.addEventListener('click', (event) => {
+        event.stopPropagation();
+        pendingDeletion = record.id;
+        get('delete-recording-name').textContent = recordingLabel(record);
+        get('delete-recording-status').textContent = '';
+        deleteDialog.showModal();
+        get('cancel-delete-recording').focus();
+      });
+      row.append(link, remove);
+      list.append(row);
     });
     get('view-all-recordings').textContent = expanded ? 'Show Less' : 'View All';
     get('view-all-recordings').setAttribute('aria-expanded', String(expanded));

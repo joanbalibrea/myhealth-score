@@ -1,3 +1,4 @@
+import { setupAccountDeletion } from './settings-deletion.js';
 import { assessmentMode, setupAvatar, renderAvatar } from './assessment.js';
 import { getProfile, updateUsername, removeAvatar } from './database.js';
 import { getCurrentUser, changeEmail, changePassword } from './accounts.js';
@@ -11,6 +12,7 @@ if (assessmentMode === 'quick') {
   if (!user) window.location.replace('login.html');
   else {
     get('settings-main').hidden = false;
+    setupAccountDeletion();
     setupAvatar();
     get('profile-email').value = user.email || '';
     document.querySelectorAll('[data-password-toggle]').forEach((button) => {
@@ -22,6 +24,11 @@ if (assessmentMode === 'quick') {
         button.setAttribute('aria-pressed', String(visible));
         button.querySelector('.password-eye-slash').toggleAttribute('hidden', !visible);
       });
+    });
+    // Reopening the deletion dialog must hide the password again.
+    get('delete-account-form').addEventListener('reset', () => {
+      const input = get('delete-account-password');
+      if (input.type === 'text') document.querySelector('[data-password-toggle="delete-account-password"]').click();
     });
     function accountForm(id, statusId, action) {
       const form = get(id);
