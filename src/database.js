@@ -5,3 +5,6 @@ import { createDatabaseSaver, createDatabaseReaders } from './recording-persiste
 export const saveRecording = createDatabaseSaver(supabase);
 export const { getRecordings, getRecordingById } = createDatabaseReaders(supabase);
 export { normalizeRecordingRow } from './recording-persistence.js';
+
+import { createProfileService } from './profile-persistence.js';
+export const { getProfile, updateUsername, getAvatarUrl, uploadAvatar, removeAvatar } = createProfileService(supabase);

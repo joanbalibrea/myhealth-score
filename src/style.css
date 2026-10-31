@@ -913,3 +913,13 @@ code {
 }
 
 .login-status[data-tone='success'] { color: #28724d; }
+
+.settings-form { margin-bottom: 20px; }
+.settings-form h2 { margin: 0 0 18px; font-size: 20px; }
+.settings-form input + label, .settings-password-field + label { margin-top: 16px; }
+.settings-form input[readonly] { color: #626a7d; }
+.settings-password-field { position: relative; }
+.settings-password-field input { padding-right: 52px; }
+.settings-form .settings-password-field button { position: absolute; right: 4px; top: 50%; transform: translateY(-50%); margin: 0; padding: 10px; border-radius: 8px; background: transparent; color: #626a7d; display: flex; align-items: center; }
+.settings-form button:disabled { opacity: .6; cursor: wait; }
+.settings-password-field button:focus-visible { outline: 2px solid #1557b9; outline-offset: 2px; }

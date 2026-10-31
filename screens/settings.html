@@ -8,11 +8,27 @@
         <button id="profile-avatar" class="assessment-avatar" type="button" aria-label="Choose profile image" hidden><svg id="default-avatar" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="14" r="7"/><path d="M7 37v-5a13 13 0 0 1 26 0v5Z"/></svg><img id="avatar-preview" alt="Your selected profile image" hidden /></button><input id="avatar-input" type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden />
       </header>
       <main id="settings-main" hidden>
-        <div class="assessment-intro"><h1>Profile Settings</h1><p>Update your display name and profile image.</p></div>
-        <form id="settings-form" class="assessment-card settings-form"><label for="display-name">Username / display name</label><input id="display-name" type="text" maxlength="100" autocomplete="username" required /><label for="profile-email">Email</label><input id="profile-email" type="email" autocomplete="email" required /><button type="submit">Save profile</button></form>
-        <section class="assessment-card settings-image"><h2>Profile image</h2><p>Choose a local PNG, JPEG, WebP, or GIF image. Changes are saved on this browser.</p><button id="choose-profile-image" type="button">Choose image</button><button id="remove-profile-image" type="button">Use default avatar</button></section>
+        <div class="assessment-intro"><h1>Profile Settings</h1><p>Manage your profile, account email, and password.</p></div>
+        <form id="settings-form" class="assessment-card settings-form"><h2>Profile</h2><label for="display-name">Username / display name</label><input id="display-name" type="text" maxlength="100" autocomplete="username" required /><button type="submit">Save profile</button></form>
+        <section class="assessment-card settings-image"><h2>Profile image</h2><p>Choose a PNG, JPEG, WebP, or GIF image up to 5 MB. Your image is saved privately to your account.</p><button id="choose-profile-image" type="button">Choose image</button><button id="remove-profile-image" type="button">Use default avatar</button></section>
         <p id="profile-status" class="settings-status" role="status"></p>
-        <p class="assessment-card settings-future">Password management will require backend authentication and is not available in this prototype.</p>
+        <form id="email-form" class="assessment-card settings-form">
+          <h2>Account</h2><label for="profile-email">Current email</label><input id="profile-email" type="email" autocomplete="email" readonly />
+          <label for="new-email">New email address</label><input id="new-email" type="email" autocomplete="email" required />
+          <button type="submit">Change email</button><p id="email-status" class="settings-status" role="status"></p>
+        </form>
+        <form id="password-form" class="assessment-card settings-form">
+          <h2>Security</h2><label for="current-password">Current password</label>
+          <div class="settings-password-field"><input id="current-password" type="password" autocomplete="current-password"  required />
+          <button type="button" data-password-toggle="current-password" aria-controls="current-password" aria-label="Show password" aria-pressed="false"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/><path class="password-eye-slash" d="M3 3l18 18" hidden /></svg></button></div>
+<label for="new-password">New password</label>
+          <div class="settings-password-field"><input id="new-password" type="password" autocomplete="new-password" minlength="8" required />
+          <button type="button" data-password-toggle="new-password" aria-controls="new-password" aria-label="Show password" aria-pressed="false"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/><path class="password-eye-slash" d="M3 3l18 18" hidden /></svg></button></div>
+<label for="confirm-new-password">Confirm new password</label>
+          <div class="settings-password-field"><input id="confirm-new-password" type="password" autocomplete="new-password" minlength="8" required />
+          <button type="button" data-password-toggle="confirm-new-password" aria-controls="confirm-new-password" aria-label="Show password" aria-pressed="false"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/><path class="password-eye-slash" d="M3 3l18 18" hidden /></svg></button></div>
+          <button type="submit">Change password</button><p id="password-status" class="settings-status" role="status"></p>
+        </form>
       </main>
       <p id="settings-quick-message" class="assessment-card" hidden>Profile settings are available in registered mode.</p>
       <a class="recommendations-bottom-return" href="dashboard.html?mode=registered" id="settings-back">← Back to Dashboard</a>

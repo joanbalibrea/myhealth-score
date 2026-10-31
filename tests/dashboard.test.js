@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readProfile, saveProfile, startRecording, clearAssessment, ASSESSMENT_KEYS } from '../src/profile.js';
+import { startRecording, clearAssessment, ASSESSMENT_KEYS } from '../src/profile.js';
 import { calculateAssessment } from '../src/scoring.js';
 import { currentRecording } from '../src/result-history.js';
 import { loadResultContext, loadDatabaseResultContext, historicalResult, recordingLabel } from '../src/result-context.js';
@@ -17,15 +17,6 @@ test('new assessment resets draft answers while preserving unrelated state', () 
   assert.equal(session.getItem('unrelated'), 'keep');
   ASSESSMENT_KEYS.filter((key) => key !== 'recording_name').forEach((key) => assert.equal(session.getItem(`myhealth_${key}`), null));
   clearAssessment(session); assert.equal(session.getItem('myhealth_recording_name'), null);
-});
-test('profile preferences remain separate from recording persistence', () => {
-  const local = storage();
-  const user = { id: 'ada', email: 'ada@test.com', user_metadata: { username: 'Ada' } };
-  saveProfile(local, { avatar: 'https://untrusted.example/image', password: 'secret', sleep_hours: 8 }, user);
-  assert.deepEqual(readProfile(local, user), { name: 'Ada', avatar: '' });
-  assert.doesNotMatch(local.getItem('myhealth_profile_ada'), /secret|sleep_hours/);
-  saveProfile(local, { avatar: 'data:image/png;base64,AAAA' }, user);
-  assert.equal(readProfile(local, user).avatar, 'data:image/png;base64,AAAA');
 });
 test('snapshot contains reproducible recommendations and no credentials', () => {
   const session = storage({ myhealth_sleep_hours: '5', myhealth_password: 'secret' });
