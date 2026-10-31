@@ -19,15 +19,16 @@
         <input id="avatar-input" type="file" accept="image/*" hidden />
       </header>
       <main>
-        <nav class="progress-navigation" aria-label="Results navigation"><a href="results.html" data-progress-results>← Back to Results</a><a href="dashboard.html" data-progress-dashboard>Profile Dashboard</a></nav>
+        <nav class="progress-navigation" aria-label="Results navigation"><a href="results.html" data-progress-results>← Back to Results</a></nav>
         <div id="progress-quick-message" class="assessment-card" hidden><p>Progress tracking is available for saved user recordings. Return to Results to finish your Quick Launcher assessment.</p></div>
+        <p id="history-status" class="progress-notice" role="status" hidden></p>
+        <button id="retry-progress" class="recommendations-return" type="button" hidden>Retry loading recordings</button>
         <div id="registered-progress" hidden>
           <div class="assessment-intro"><h1>Your Progress</h1><p>Your wellness scores across completed assessments.</p></div>
           <section class="assessment-card progress-insights" aria-labelledby="growth-heading">
             <div class="results-heading-row"><h2 id="growth-heading">Key Growth Insights</h2><span id="growth-trend" class="progress-trend-badge" hidden></span></div>
             <p id="growth-description"></p><p id="growth-improvement" hidden></p>
           </section>
-          <p id="history-status" class="progress-notice" role="status" hidden></p>
           <section class="assessment-card" aria-labelledby="overall-chart-heading">
             <div class="results-heading-row"><h2 id="overall-chart-heading">Overall MyHealth Score</h2><strong id="current-progress-score" class="progress-current-score">N/A</strong></div>
             <div id="overall-chart" class="progress-chart-scroll" tabindex="0" aria-label="Overall score chart; scroll horizontally for more recordings"></div>
@@ -42,7 +43,7 @@
           </section>
           <section class="assessment-card progress-latest" aria-labelledby="latest-heading"><h2 id="latest-heading">Latest Check-in</h2><p id="latest-recording-name"></p><div id="latest-domain-scores"></div></section>
         </div>
-        <nav class="progress-navigation progress-bottom-navigation" aria-label="Bottom results navigation"><a href="results.html" data-progress-results>← Back to Results</a><a href="dashboard.html" data-progress-dashboard>Profile Dashboard</a></nav>
+        <nav class="progress-navigation progress-bottom-navigation" aria-label="Bottom results navigation"><a href="results.html" data-progress-results>← Back to Results</a></nav>
       </main>
     </div>
     <script type="module" src="../src/progress.js"></script>

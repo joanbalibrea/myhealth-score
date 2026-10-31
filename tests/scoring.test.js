@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { calculateAssessment, readAssessment, numberAnswer, scoreBloodPressure, interpretScore } from '../src/scoring.js';
-import { createRecording, previousRecording, readHistory, saveRecording } from '../src/result-history.js';
+import { createRecording, previousRecording } from '../src/result-history.js';
 
 function storage(values = {}) {
   const data = new Map(Object.entries(values).map(([key, value]) => [key.startsWith('myhealth_') ? key : `myhealth_${key}`, String(value)]));
@@ -160,25 +160,13 @@ test('interpretation and focus targets use raw domain thresholds and rounded ove
   assert.equal(result.insight.domains[0].id, 'sleep');
 });
 
-test('history is not written by reading; append is duplicate-safe and preserves prior records', () => {
-  const source = storage();
+test('record snapshot and previous-record selection use data without browser persistence', () => {
   const result = assess(complete);
   const record = createRecording(result, 'Morning', new Date('2026-10-30T10:00:00Z'), 'id-1');
-  assert.deepEqual(readHistory(source), []);
-  assert.equal(source.getItem('myhealth_history'), null);
-  saveRecording(source, record);
-  saveRecording(source, record);
-  assert.equal(readHistory(source).length, 1);
-  saveRecording(source, { ...record, id: 'id-2', date: '2026-11-01T10:00:00Z', overallScore: 8 });
-  assert.equal(readHistory(source).length, 2);
-  assert.equal(previousRecording(readHistory(source)).id, 'id-2');
+  const records = [record, { ...record, id: 'id-2', date: '2026-11-01T10:00:00Z', overallScore: 8 }];
+  assert.equal(previousRecording(records).id, 'id-2');
   assert.equal(previousRecording([null, { overallScore: null, date: record.date }]), null);
   assert.equal(record.completeness, 100);
   assert.equal(record.domainScores.sleep, 10);
 });
 
-test('malformed history is preserved rather than replaced during save', () => {
-  const source = storage({ history: '{broken' });
-  assert.throws(() => saveRecording(source, { id: 'one' }));
-  assert.equal(source.getItem('myhealth_history'), '{broken');
-});

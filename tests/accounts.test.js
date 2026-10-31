@@ -1,7 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createAuthService, getUserHistoryKey } from '../src/auth-service.js';
-import { saveRecording } from '../src/result-history.js';
+import { createAuthService } from '../src/auth-service.js';
 
 function storage(values = {}) {
   const data = new Map(Object.entries(values));
@@ -10,7 +9,7 @@ function storage(values = {}) {
 function fixture() {
   const session = storage(), local = storage();
   let user = null;
-  let listener;
+  let listener = () => {};
   const calls = [];
   const state = { signUpError: null, loginError: null, logoutError: null, signupSession: null };
   const client = { auth: {
@@ -59,24 +58,11 @@ test('local prototype IDs and registries never establish authentication', async 
   f.session.setItem('myhealth_current_user_id', 'legacy');
   f.local.setItem('myhealth_users', JSON.stringify([{ id: 'legacy', passwordHash: 'old' }]));
   assert.equal(await f.auth.getCurrentUser(), null);
-  await assert.rejects(f.auth.getUserHistoryStorage(), /sign in/);
 });
-test('local history remains scoped to Supabase IDs, duplicate-safe and isolated', async () => {
-  const f = fixture();
-  f.setUser({ id: 'joan-id', email: 'joan@test.com', user_metadata: { username: 'joan' } });
-  const adapter = await f.auth.getUserHistoryStorage();
-  const record = { id: 'one', overallScore: 8 };
-  saveRecording(adapter, record); saveRecording(adapter, record);
-  assert.equal(JSON.parse(f.local.getItem(getUserHistoryKey('joan-id'))).length, 1);
-  f.setUser({ id: 'maria-id', email: 'maria@test.com', user_metadata: { username: 'maria' } });
-  assert.throws(() => adapter.getItem('myhealth_history'), /account has changed/);
-  assert.deepEqual(await f.auth.getCurrentUserHistory(), []);
-  assert.equal(f.local.getItem('myhealth_history'), null);
-});
-test('logout awaits Supabase success and preserves history and profiles', async () => {
+test('logout awaits Supabase success and preserves preferences and profiles', async () => {
   const f = fixture();
   await f.auth.loginUser('joan@test.com', 'test12345');
-  f.local.setItem('myhealth_history_supabase-joan', '[{"id":"saved"}]');
+  f.local.setItem('myhealth_ui_preference', 'compact');
   f.local.setItem('myhealth_profile_supabase-joan', '{"avatar":"image"}');
   f.session.setItem('myhealth_sleep_hours', '8');
   f.state.logoutError = { message: 'Try again' };
@@ -86,7 +72,7 @@ test('logout awaits Supabase success and preserves history and profiles', async 
   await f.auth.logoutUser();
   assert.equal(await f.auth.getCurrentUser(), null);
   assert.equal(f.session.getItem('myhealth_sleep_hours'), null);
-  assert.equal(f.local.getItem('myhealth_history_supabase-joan'), '[{"id":"saved"}]');
+  assert.equal(f.local.getItem('myhealth_ui_preference'), 'compact');
   assert.equal(f.local.getItem('myhealth_profile_supabase-joan'), '{"avatar":"image"}');
 });
 test('settings update username metadata through Supabase, not a local registry', async () => {
@@ -96,12 +82,12 @@ test('settings update username metadata through Supabase, not a local registry',
   assert.deepEqual(f.calls.at(-1), ['updateUser', { data: { username: 'Joan New' }, email: 'new@test.com' }]);
   assert.equal(f.local.getItem('myhealth_users'), null);
 });
-test('authentication switches clear draft answers without removing history', async () => {
+test('authentication switches clear draft answers without removing preferences', async () => {
   const f = fixture();
   f.setUser({ id: 'joan', email: 'joan@test.com' }); await f.auth.getCurrentUser();
   f.session.setItem('myhealth_sleep_hours', '8');
-  f.local.setItem('myhealth_history_joan', '[]');
+  f.local.setItem('myhealth_ui_preference', 'compact');
   f.setUser({ id: 'maria', email: 'maria@test.com' }); await f.auth.getCurrentUser();
   assert.equal(f.session.getItem('myhealth_sleep_hours'), null);
-  assert.equal(f.local.getItem('myhealth_history_joan'), '[]');
+  assert.equal(f.local.getItem('myhealth_ui_preference'), 'compact');
 });

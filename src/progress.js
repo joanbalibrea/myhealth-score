@@ -1,8 +1,10 @@
-import { assessmentMode, assessmentUrl, setupAvatar } from './assessment.js';
+import { assessmentMode, setupAvatar } from './assessment.js';
 import { calculateAssessment, DOMAIN_INFO } from './scoring.js';
 import { currentRecording } from './result-history.js';
-import { validatedHistory, buildProgress, dateLabel, signedChange, changeDirection, chartSegments } from './progress-data.js';
-import { getCurrentUser, getUserHistoryStorage } from './accounts.js';
+import { buildProgress, dateLabel, signedChange, changeDirection, chartSegments, domainComparison } from './progress-data.js';
+import { getCurrentUser } from './accounts.js';
+import { getRecordings } from './database.js';
+import { resultUrl } from './result-navigation.js';
 
 const get = (id) => document.getElementById(id);
 const domainName = (domain) => domain.id === 'vitals' ? 'Cardiovascular & Vitals' : domain.name;
@@ -20,40 +22,43 @@ function svgNode(tag, attributes = {}, text) {
 }
 const recordLabel = (record) => record.name?.trim() || dateLabel(record.date);
 
-document.querySelectorAll('[data-progress-results]').forEach((link) => { link.href = assessmentUrl('results.html'); });
-document.querySelectorAll('[data-progress-dashboard]').forEach((link) => { link.href = assessmentUrl('dashboard.html'); });
+const params = new URLSearchParams(window.location.search);
+const recordId = assessmentMode === 'quick' ? null : params.get('record');
+document.querySelectorAll('[data-progress-results]').forEach((link) => { link.href = resultUrl('results.html', assessmentMode, recordId); });
 
 // Guard before reading any history or current assessment in Quick Launcher mode.
 if (assessmentMode === 'quick') {
   get('progress-quick-message').hidden = false;
-  document.querySelectorAll('[data-progress-dashboard]').forEach((link) => { link.hidden = true; });
 } else if (!await getCurrentUser()) {
   window.location.replace('login.html');
 } else {
   setupAvatar();
-  get('registered-progress').hidden = false;
   let session;
   try { session = window.sessionStorage; } catch { session = { getItem: () => null }; }
   let name = '';
   try { name = session.getItem('myhealth_recording_name')?.trim() || ''; } catch { /* Date fallback. */ }
-  const savedOnly = new URLSearchParams(window.location.search).get('source') === 'dashboard';
-  let history;
-  try { history = validatedHistory(await getUserHistoryStorage()); }
-  catch { history = { records: [], unavailable: true }; }
-  const empty = { id: 'empty', name: '', date: new Date().toISOString(), overallScore: null, domainScores: Object.fromEntries(DOMAIN_INFO.map((domain) => [domain.id, null])) };
-  const current = savedOnly ? history.records.at(-1) ?? empty : currentRecording(calculateAssessment(session), name, session);
-  const displayName = savedOnly ? current.name : name;
-  const model = buildProgress(history.records, current, displayName);
-  if (savedOnly && !history.records.length) model.records = [];
-  const currentDisplay = { ...current, name: displayName };
-  if (history.unavailable) {
-    get('history-status').hidden = false;
-    get('history-status').textContent = 'Saved history could not be read. Your current assessment is shown; existing history has not been changed.';
+  const savedOnly = recordId !== null || params.get('source') === 'dashboard';
+  get('history-status').hidden = false;
+  get('history-status').textContent = 'Loading recordings…';
+  get('retry-progress').addEventListener('click', () => window.location.reload());
+  let savedRecordings = null;
+  try { savedRecordings = await getRecordings(); }
+  catch (error) {
+    console.error('Unable to load Progress recordings:', error);
+    get('history-status').textContent = "We couldn't load your recordings. Please try again.";
+    get('retry-progress').hidden = false;
   }
-  get('current-progress-score').textContent = current.overallScore === null ? 'N/A' : current.overallScore.toFixed(1);
-  get('latest-recording-name').textContent = savedOnly && !history.records.length ? 'No recordings yet' : recordLabel(currentDisplay);
+  if (savedRecordings !== null) {
+  get('history-status').hidden = true;
+  get('registered-progress').hidden = false;
+  const assessment = savedOnly ? null : calculateAssessment(session);
+  const draft = assessment && assessment.overallScore !== null ? currentRecording(assessment, name, session) : null;
+  const model = buildProgress(savedRecordings, draft);
+  const current = model.current;
+  get('current-progress-score').textContent = current?.overallScore == null ? 'N/A' : current.overallScore.toFixed(1);
+  get('latest-recording-name').textContent = current ? recordLabel(current) : 'No recordings yet';
   if (!model.previous) {
-    get('growth-description').append(node('strong', '', 'No past recordings'), node('span', 'progress-first-description', savedOnly && !history.records.length ? 'Complete your first health recording to start tracking progress.' : 'This is your first recorded assessment. Future check-ins will appear here for comparison.'));
+    get('growth-description').append(node('strong', '', current ? 'No past recordings' : 'No recordings yet'), node('span', 'progress-first-description', !current ? 'Complete your first health recording to start tracking progress.' : 'This is your first recorded assessment. Future check-ins will appear here for comparison.'));
   } else if (model.delta === null) {
     get('growth-description').textContent = 'An overall comparison is not available because one of the assessments has no overall score.';
   } else {
@@ -76,7 +81,7 @@ if (assessmentMode === 'quick') {
     const width = Math.max(520, model.records.length * 110);
     const svg = svgNode('svg', { viewBox: `0 0 ${width} 290`, role: 'img', 'aria-label': chartName });
     svg.style.minWidth = `${width}px`;
-    svg.append(svgNode('title', {}, chartName), svgNode('desc', {}, 'Scores range from zero to ten. Each point represents one recording. Missing measurements leave gaps. The final recording is the current assessment.'));
+    svg.append(svgNode('title', {}, chartName), svgNode('desc', {}, 'Scores range from zero to ten. Each point represents one recording. Missing measurements leave gaps. An unsaved current assessment is labeled CURRENT when present.'));
     for (let score = 0; score <= 10; score += 2) {
       const y = 210 - score * 18;
       svg.append(svgNode('line', { x1: 38, x2: width - 18, y1: y, y2: y, class: 'progress-grid-line' }));
@@ -142,9 +147,11 @@ if (assessmentMode === 'quick') {
     const label = node('strong', '', domainName(domain));
     label.style.color = domain.color;
     const score = node('span', '', domain.score.toFixed(1));
-    const change = node('span', 'progress-domain-change', domain.delta === null ? 'No previous comparison' : `(${signedChange(domain.delta)})`);
-    change.dataset.direction = changeDirection(domain.delta);
+    const comparison = domainComparison(model.current, model.previous, domain.id);
+    const change = node('span', 'progress-domain-change', comparison.text);
+    change.dataset.direction = comparison.direction;
     row.append(label, score, change);
     get('latest-domain-scores').append(row);
   });
+  }
 }
