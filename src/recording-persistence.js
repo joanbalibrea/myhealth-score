@@ -99,3 +99,17 @@ export function createDatabaseReaders(client) {
   }
   return { getRecordings, getRecordingById };
 }
+
+export function createDatabaseDeleter(client) {
+  return async function deleteRecording(recordingId) {
+    if (typeof recordingId !== 'string' || !recordingId.trim()) throw new Error('A recording ID is required.');
+    const id = recordingId.trim();
+    if (!/^[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}$/i.test(id)) throw new Error('A valid recording UUID is required.');
+    const { data: authData, error: authError } = await client.auth.getUser();
+    if (authError || !authData?.user?.id) throw new Error('Please sign in before deleting a recording.', { cause: authError });
+    // RLS authorizes ownership; select confirms that one row was actually deleted.
+    const { data, error } = await client.from('recordings').delete().eq('id', id).select('id');
+    if (error) throw new Error(`Unable to delete recording: ${error.message || 'Database request failed.'}`, { cause: error });
+    if (!Array.isArray(data) || data.length !== 1 || data[0].id !== id) throw new Error('The recording was not deleted. It may no longer exist or you may not have access.');
+  };
+}

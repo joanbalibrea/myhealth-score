@@ -43,6 +43,16 @@
       </main>
       <div id="dashboard-quick-message" class="assessment-card" hidden><p>The Dashboard is available for registered mode.</p><a href="login.html">Return to Login</a></div>
     </div>
+    <dialog id="delete-recording-dialog" class="dashboard-delete-dialog" aria-labelledby="delete-recording-title" aria-describedby="delete-recording-warning delete-recording-name">
+      <h2 id="delete-recording-title">Delete this recording?</h2>
+      <p id="delete-recording-name"></p>
+      <p id="delete-recording-warning">This action cannot be undone.</p>
+      <p id="delete-recording-status" role="status"></p>
+      <div class="dashboard-delete-actions">
+        <button id="cancel-delete-recording" type="button" autofocus>Cancel</button>
+        <button id="confirm-delete-recording" type="button">Delete Recording</button>
+      </div>
+    </dialog>
     <script type="module" src="../src/dashboard.js"></script>
   </body>
 </html>

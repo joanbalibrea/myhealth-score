@@ -29,10 +29,28 @@
           <button type="button" data-password-toggle="confirm-new-password" aria-controls="confirm-new-password" aria-label="Show password" aria-pressed="false"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/><path class="password-eye-slash" d="M3 3l18 18" hidden /></svg></button></div>
           <button type="submit">Change password</button><p id="password-status" class="settings-status" role="status"></p>
         </form>
+        <section class="assessment-card settings-danger" aria-labelledby="danger-zone-title">
+          <h2 id="danger-zone-title">Danger Zone</h2>
+          <p>Deleting your account permanently removes your profile, saved health recordings and profile image. This action cannot be undone.</p>
+          <button id="open-delete-account" type="button">Delete Account</button>
+        </section>
       </main>
       <p id="settings-quick-message" class="assessment-card" hidden>Profile settings are available in registered mode.</p>
       <a class="recommendations-bottom-return" href="dashboard.html?mode=registered" id="settings-back">← Back to Dashboard</a>
     </div>
+    <dialog id="delete-account-dialog" class="settings-delete-dialog" aria-labelledby="delete-account-title" aria-describedby="delete-account-warning">
+      <h2 id="delete-account-title">Permanently delete your account?</h2>
+      <p id="delete-account-warning">Your profile, saved health recordings and profile image will be permanently removed. This action cannot be undone.</p>
+      <form id="delete-account-form" class="settings-form">
+        <label for="delete-account-password">Current password</label>
+        <div class="settings-password-field"><input id="delete-account-password" type="password" autocomplete="current-password" required />
+        <button type="button" data-password-toggle="delete-account-password" aria-controls="delete-account-password" aria-label="Show password" aria-pressed="false"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/><path class="password-eye-slash" d="M3 3l18 18" hidden /></svg></button></div>
+        <label for="delete-account-confirmation">Type DELETE to confirm</label>
+        <input id="delete-account-confirmation" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" required />
+        <p id="delete-account-status" role="status"></p>
+        <div class="settings-delete-actions"><button id="cancel-delete-account" type="button" autofocus>Cancel</button><button id="confirm-delete-account" type="submit" disabled>Delete My Account</button></div>
+      </form>
+    </dialog>
     <script type="module" src="../src/settings.js"></script>
   </body>
 </html>
