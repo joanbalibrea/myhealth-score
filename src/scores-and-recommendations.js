@@ -1,3 +1,4 @@
+import { uiIcon, categoryIcons } from './ui-icons.js';
 import { assessmentMode, assessmentUrl, setupAvatar } from './assessment.js';
 import { calculateAssessment, readAssessment, domainHighlights, domainRecommendation, interpretScore } from './scoring.js';
 import { loadResultContext, loadDatabaseResultContext, historicalResult, recordingLabel } from './result-context.js';
@@ -59,6 +60,7 @@ function highlight(id, domain) {
   setTone(card, domain);
   const title = element('p', 'recommendation-domain-name', domainName(domain));
   title.style.color = domain.color;
+  title.prepend(uiIcon(categoryIcons[domain.id]));
   content.append(title, scoreText(domain), bar(domain));
   if (id === 'focus-area') content.append(element('p', 'recommendations-empty', focusIds.has(domain.id) ? 'Key Focus' : 'Lowest available score; not an alert.'));
 }
@@ -74,6 +76,7 @@ result.domains.forEach((domain) => {
   const header = element('div', 'recommendation-domain-header');
   const title = element('h2', '', domainName(domain));
   title.id = headingId;
+  title.prepend(uiIcon(categoryIcons[domain.id]));
   title.style.color = domain.color;
   header.append(title);
   if (focusIds.has(domain.id)) header.append(element('span', 'recommendation-focus', 'Key Focus'));

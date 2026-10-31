@@ -1,6 +1,8 @@
+import { renderScoreChart } from './score-chart.js';
+import { uiIcon, categoryIcons } from './ui-icons.js';
 import { assessmentMode, setupAvatar } from './assessment.js';
 import { startRecording } from './profile.js';
-import { dateLabel, scoreChange, signedChange, changeDirection, chartSegments, domainComparison } from './progress-data.js';
+import { dateLabel, scoreChange, signedChange, changeDirection, domainComparison } from './progress-data.js';
 import { DOMAIN_INFO, interpretScore } from './scoring.js';
 import { recordingLabel } from './result-context.js';
 import { getCurrentUser, logoutUser } from './accounts.js';
@@ -93,37 +95,17 @@ if (assessmentMode === 'quick') {
     const delta = records.length > 1 ? scoreChange(latest.overallScore, records[1].overallScore) : null;
     const change = node('span', 'dashboard-change', records.length === 1 ? 'First measurement' : delta === null ? 'No previous comparison' : `${signedChange(delta)} pts`);
     change.dataset.direction = changeDirection(delta);
-    summary.append(change);
+    change.title = 'Score difference compared with your previous recording, on the 0–10 scale.';
+    summary.append(change, node('small', 'ui-comparison-note', 'Points show the score difference from your previous recording.'));
   }
-  // Reuse Progress's geometry and missing-value segmentation with saved data only.
-  const width = Math.max(460, records.length * 105);
-  const chart = svgNode('svg', { viewBox: `0 0 ${width} 270`, role: 'img', 'aria-label': 'Overall scores of saved recordings, from zero to ten' });
-  chart.style.minWidth = `${width}px`;
-  for (let value = 0; value <= 10; value += 2) {
-    const y = 210 - value * 18;
-    chart.append(svgNode('line', { x1: 38, x2: width - 18, y1: y, y2: y, class: 'progress-grid-line' }), svgNode('text', { x: 27, y: y + 4, 'text-anchor': 'end', class: 'progress-axis-label' }, value));
-  }
-  chronological.forEach((record, index) => {
-    const x = records.length === 1 ? (38 + width - 18) / 2 : 38 + index * (width - 56) / (records.length - 1);
-    const anchor = records.length === 1 ? 'middle' : index === 0 ? 'start' : index === records.length - 1 ? 'end' : 'middle';
-    const label = recordingLabel(record);
-    const text = svgNode('text', { x, y: 237, 'text-anchor': anchor, class: 'progress-axis-label' }, label.length > 16 ? `${label.slice(0, 14)}…` : label);
-    text.append(svgNode('title', {}, label));
-    chart.append(text);
-  });
-  chartSegments(chronological, (record) => record.overallScore, width).forEach((segment) => {
-    if (segment.length > 1) chart.append(svgNode('polyline', { points: segment.map((point) => `${point.x},${point.y}`).join(' '), stroke: '#1557b9', fill: 'none', 'stroke-width': 3 }));
-    segment.forEach((point) => {
-      const label = `${recordingLabel(point.record)}: ${point.score.toFixed(1)} out of 10`;
-      const circle = svgNode('circle', { cx: point.x, cy: point.y, r: 5, stroke: '#1557b9', fill: 'white', 'stroke-width': 3, tabindex: 0, 'aria-label': label });
-      circle.append(svgNode('title', {}, label)); chart.append(circle);
-    });
-  });
-  get('dashboard-chart').append(chart);
+  renderScoreChart(get('dashboard-chart'), chronological, [{ id: 'overall', name: 'Overall score', color: '#1557b9', select: record => record.overallScore }], recordingLabel, 'Overall scores of saved recordings, from zero to ten', true);
   if (!latest) get('dashboard-categories').append(node('p', 'assessment-card dashboard-empty', 'Complete your first assessment to see your category scores.'));
   else DOMAIN_INFO.forEach((domain) => {
     const score = latest.domainScores[domain.id];
     const card = node('article', 'assessment-card dashboard-category');
+    const categoryIcon = uiIcon(categoryIcons[domain.id]);
+    categoryIcon.style.color = domain.color;
+    card.append(categoryIcon);
     const title = node('h3', '', domain.id === 'vitals' ? 'Cardiovascular & Vitals' : domain.name);
     title.style.color = domain.color;
     card.append(title, node('strong', '', score === null ? 'N/A' : `${score.toFixed(1)} / 10`), node('p', '', score === null ? 'Not enough data' : score >= 8 ? 'Strong range' : interpretScore(score).label === 'Good' ? 'Good range' : interpretScore(score).label));

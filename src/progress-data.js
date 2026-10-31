@@ -23,6 +23,15 @@ export function domainComparison(current, previous, domainId) {
   return { delta, text: delta === null ? 'No previous comparison' : `(${signedChange(delta)})`, direction: changeDirection(delta) };
 }
 
+// History arrives newest-first from Supabase. Use UUID position for the cutoff,
+// including tied timestamps; reverse a copy so stable sorting keeps ties in
+// chronological history order and the selected record remains the endpoint.
+export function buildHistoricalProgress(history, recordingId) {
+  const index = history.findIndex((record) => record.id === recordingId);
+  if (index === -1) throw new Error('The selected recording is unavailable in the authenticated user history.');
+  return buildProgress(history.slice(index).reverse());
+}
+
 export function buildProgress(history, draft = null, currentName = draft?.name ?? '') {
   // Database queries are newest-first. Sort a copy for oldest-to-newest graphs.
   const records = [...history].sort((a, b) => Date.parse(a.date) - Date.parse(b.date));

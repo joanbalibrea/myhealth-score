@@ -91,3 +91,49 @@ test('session metadata errors never create persistent recording history', () => 
   assert.equal(dateLabel(record.date), '30/10/2026');
   assert.equal(typeof record.id, 'string');
 });
+
+test('historical Progress ends at selected UUID and uses its immediately older measurement', async () => {
+  const { buildHistoricalProgress } = await import('../src/progress-data.js');
+  const history = [
+    record('D', 9, '2026-04-01', { sleep: 10 }),
+    record('C', 8.5, '2026-03-01', { sleep: 9 }),
+    record('B', 7.8, '2026-02-01', { sleep: 7 }),
+    record('A', 7.1, '2026-01-01', { sleep: 5.8 }),
+  ];
+  const original = JSON.stringify(history);
+  const model = buildHistoricalProgress(history, 'B');
+  assert.deepEqual(model.records.map(record => record.id), ['A', 'B']);
+  assert.equal(model.current.id, 'B');
+  assert.equal(model.previous.id, 'A');
+  assert.equal(model.delta, 0.7);
+  assert.equal(model.changes.find(domain => domain.id === 'sleep').score, 7);
+  assert.equal(model.improvement.id, 'sleep');
+  assert.equal(model.improvement.delta, 1.2);
+  assert.deepEqual(chartSegments(model.records, record => record.overallScore)[0].map(point => point.record.id), ['A', 'B']);
+  assert.deepEqual(chartSegments(model.records, record => record.domainScores.sleep)[0].map(point => point.record.id), ['A', 'B']);
+  assert.equal(JSON.stringify(history), original);
+  assert.equal(buildProgress(history).current.id, 'D');
+});
+test('historical cutoff handles equal timestamps by UUID position and keeps selected record last', async () => {
+  const { buildHistoricalProgress } = await import('../src/progress-data.js');
+  const history = [record('D', 9, now), record('C', 8, now), record('B', 7, now), record('A', 6, now)];
+  const model = buildHistoricalProgress(history, 'C');
+  assert.deepEqual(model.records.map(record => record.id), ['A', 'B', 'C']);
+  assert.equal(model.current.id, 'C');
+  assert.equal(model.previous.id, 'B');
+  assert.equal(model.delta, 1);
+});
+test('first historical recording has no fabricated previous score or change', async () => {
+  const { buildHistoricalProgress } = await import('../src/progress-data.js');
+  const model = buildHistoricalProgress([record('new', 8, now), record('first', 7, before)], 'first');
+  assert.equal(model.current.id, 'first');
+  assert.equal(model.previous, null);
+  assert.equal(model.delta, null);
+  assert.equal(model.improvement, null);
+  assert.ok(model.changes.every(domain => domain.delta === null));
+});
+test('missing historical UUID never falls back to newest or draft', async () => {
+  const { buildHistoricalProgress } = await import('../src/progress-data.js');
+  assert.throws(() => buildHistoricalProgress([record('new', 8, now)], 'missing'), /unavailable/);
+  assert.throws(() => buildHistoricalProgress([], 'missing'), /unavailable/);
+});
