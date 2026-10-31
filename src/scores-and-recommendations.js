@@ -1,8 +1,10 @@
 import { assessmentMode, assessmentUrl, setupAvatar } from './assessment.js';
 import { calculateAssessment, readAssessment, domainHighlights, domainRecommendation, interpretScore } from './scoring.js';
-import { loadResultContext, recordingLabel } from './result-context.js';
+import { loadResultContext, loadDatabaseResultContext, historicalResult, recordingLabel } from './result-context.js';
 import { dateLabel } from './progress-data.js';
-import { getCurrentUser, getUserHistoryStorage } from './accounts.js';
+import { getCurrentUser } from './accounts.js';
+import { getRecordingById } from './database.js';
+import { resultUrl } from './result-navigation.js';
 
 if (assessmentMode !== 'quick' && !await getCurrentUser()) {
   window.location.replace('login.html');
@@ -12,10 +14,14 @@ let storage;
 try { storage = window.sessionStorage; } catch { storage = { getItem: () => null }; }
 // Reuse the exact Screen 10 engine without saving history or modifying answers.
 const recordId = assessmentMode === 'quick' ? null : new URLSearchParams(window.location.search).get('record');
-let historyStorage;
-try { historyStorage = assessmentMode === 'quick' ? null : await getUserHistoryStorage(); } catch { historyStorage = { getItem() { throw new Error('Storage unavailable'); } }; }
-const context = loadResultContext(storage, historyStorage, recordId);
+let context;
+try { context = recordId !== null ? await loadDatabaseResultContext(recordId, getRecordingById) : loadResultContext(storage); }
+catch (error) {
+  console.error('Unable to load historical recommendations:', error);
+  context = { historical: true, record: null, result: historicalResult({}), error: "We couldn't load this recording. Please return to Results and try again." };
+}
 const result = context.result;
+if (context.historical) document.querySelector('[aria-label="Exit assessment"]').hidden = true;
 const answers = context.historical ? null : readAssessment(storage);
 const focusIds = new Set(result.focusTargets.map((domain) => domain.id));
 const get = (id) => document.getElementById(id);
@@ -93,6 +99,6 @@ let name = 'Current Recording';
 try { name = storage.getItem('myhealth_recording_name')?.trim() || name; } catch { /* Keep fallback. */ }
 get('recording-name').textContent = context.historical ? recordingLabel(context.record) : assessmentMode === 'quick' ? new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : name === 'Current Recording' ? dateLabel(new Date()) : name;
 if (context.error) get('domain-cards').prepend(element('p', 'assessment-error', context.error));
-document.querySelectorAll('[data-return-results]').forEach((link) => { link.href = assessmentUrl('results.html') + (recordId ? `&record=${encodeURIComponent(recordId)}` : ''); });
+document.querySelectorAll('[data-return-results]').forEach((link) => { link.href = resultUrl('results.html', assessmentMode, recordId); });
 setupAvatar();
 }

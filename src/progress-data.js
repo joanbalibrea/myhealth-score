@@ -1,5 +1,4 @@
 import { DOMAIN_INFO } from './scoring.js';
-import { readHistory } from './result-history.js';
 
 export function validScore(value) {
   return typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= 10 ? value : null;
@@ -19,38 +18,33 @@ export function changeDirection(value) {
   return value === null || value === 0 ? 'flat' : value > 0 ? 'up' : 'down';
 }
 
-export function validatedHistory(storage) {
-  let raw;
-  try { raw = readHistory(storage); }
-  catch { return { records: [], unavailable: true }; }
-  const seen = new Set();
-  const records = [];
-  raw.forEach((entry, index) => {
-    if (!entry || typeof entry !== 'object' || typeof entry.date !== 'string' || !Number.isFinite(Date.parse(entry.date))) return;
-    const domainScores = Object.fromEntries(DOMAIN_INFO.map(({ id }) => [id, validScore(entry.domainScores?.[id])]));
-    const overallScore = validScore(entry.overallScore);
-    if (overallScore === null && Object.values(domainScores).every((score) => score === null) && entry.overallScore !== null) return;
-    const id = typeof entry.id === 'string' || typeof entry.id === 'number' ? String(entry.id) : `historical-${index}`;
-    if (seen.has(id)) return;
-    seen.add(id);
-    records.push({ id, name: typeof entry.name === 'string' ? entry.name.trim() : '', date: entry.date, overallScore, domainScores });
-  });
-  records.sort((a, b) => Date.parse(a.date) - Date.parse(b.date));
-  return { records, unavailable: false };
+export function domainComparison(current, previous, domainId) {
+  const delta = scoreChange(current?.domainScores?.[domainId], previous?.domainScores?.[domainId]);
+  return { delta, text: delta === null ? 'No previous comparison' : `(${signedChange(delta)})`, direction: changeDirection(delta) };
 }
 
-export function buildProgress(history, current, currentName = '') {
-  // The current ID is shared with Results. Do not compare a recording with itself.
-  const previousRecords = history.filter((record) => record.id !== current.id && Date.parse(record.date) <= Date.parse(current.date));
-  const previous = previousRecords.at(-1) ?? null;
-  const records = [...previousRecords, { ...current, name: currentName, current: true }];
-  const delta = previous ? scoreChange(current.overallScore, previous.overallScore) : null;
+export function buildProgress(history, draft = null, currentName = draft?.name ?? '') {
+  // Database queries are newest-first. Sort a copy for oldest-to-newest graphs.
+  const records = [...history].sort((a, b) => Date.parse(a.date) - Date.parse(b.date));
+  const alreadySaved = draft && (draft.savedRecordId || records.some((record) => record.id === draft.id || (
+    Date.parse(record.date) === Date.parse(draft.date) && record.name === draft.name &&
+    record.overallScore === draft.overallScore && answerSignature(record.answers) === answerSignature(draft.answers)
+  )));
+  if (draft && !alreadySaved && validScore(draft.overallScore) !== null) records.push({ ...draft, name: currentName, current: true });
+  const current = records.at(-1) ?? null;
+  const previous = records.at(-2) ?? null;
+  const delta = previous && current ? scoreChange(current.overallScore, previous.overallScore) : null;
   const changes = DOMAIN_INFO.map((domain) => ({
-    ...domain, score: validScore(current.domainScores[domain.id]),
-    delta: previous ? scoreChange(current.domainScores[domain.id], previous.domainScores[domain.id]) : null,
+    ...domain, score: validScore(current?.domainScores[domain.id]),
+    delta: domainComparison(current, previous, domain.id).delta,
   }));
   const improvement = changes.filter((domain) => domain.delta !== null && domain.delta > 0).sort((a, b) => b.delta - a.delta)[0] ?? null;
-  return { records, previous, delta, changes, improvement };
+  return { records, current, previous, delta, changes, improvement };
+}
+
+function answerSignature(answers) {
+  // PostgreSQL jsonb may return object keys in a different order.
+  return JSON.stringify(Object.entries(answers ?? {}).sort(([left], [right]) => left.localeCompare(right)));
 }
 
 // Split at missing values rather than drawing across an unanswered category.

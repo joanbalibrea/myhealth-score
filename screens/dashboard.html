@@ -21,7 +21,7 @@
           <div class="assessment-avatar dashboard-user-avatar" data-profile-avatar-copy>
             <svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="14" r="7"/><path d="M7 37v-5a13 13 0 0 1 26 0v5Z"/></svg><img alt="Your profile image" hidden />
           </div>
-          <div class="dashboard-greeting"><h1 id="dashboard-greeting">Hello</h1><p id="recording-count">0 recordings completed</p></div>
+          <div class="dashboard-greeting"><h1 id="dashboard-greeting">Hello</h1><p id="recording-count">Loading recordings…</p></div>
           <div class="dashboard-user-actions"><a href="settings.html?mode=registered">Settings</a><button id="dashboard-exit" type="button">Exit</button></div>
         </section>
         <section id="new-recording-card" class="assessment-card dashboard-new">
@@ -29,20 +29,20 @@
           <form id="new-recording-form"><label for="new-recording-name">Recording name</label><div class="dashboard-record-field"><input id="new-recording-name" type="text" maxlength="100" placeholder="e.g. November Week 1" /><button type="submit">+ Record</button></div></form>
         </section>
         <p id="dashboard-status" class="assessment-error" role="status"></p><p id="profile-status" class="assessment-error" role="status"></p>
-        <section class="assessment-card" aria-labelledby="dashboard-progression-heading">
+        <button id="retry-recordings" class="recommendations-return" type="button" hidden>Retry loading recordings</button>
+        <section class="assessment-card" aria-labelledby="dashboard-progression-heading" data-saved-recordings hidden>
           <h2 id="dashboard-progression-heading" class="dashboard-eyebrow">SCORE PROGRESSION</h2>
           <div id="dashboard-score-summary" class="dashboard-score-summary"></div>
           <div id="dashboard-chart" class="progress-chart-scroll" tabindex="0" aria-label="Saved overall score progression; scroll horizontally for more recordings"></div>
         </section>
-        <section aria-labelledby="latest-scores-heading"><h2 id="latest-scores-heading">Latest Health Scores</h2><div id="dashboard-categories" class="dashboard-categories"></div></section>
-        <section class="dashboard-recordings" aria-labelledby="recordings-heading">
+        <section aria-labelledby="latest-scores-heading" data-saved-recordings hidden><h2 id="latest-scores-heading">Latest Health Scores</h2><div id="dashboard-categories" class="dashboard-categories"></div></section>
+        <section class="dashboard-recordings" aria-labelledby="recordings-heading" data-saved-recordings hidden>
           <div class="results-heading-row"><h2 id="recordings-heading">Your Health Recordings</h2><button id="view-all-recordings" type="button" hidden aria-expanded="false" aria-controls="dashboard-recordings-list">View All</button></div>
           <p class="dashboard-history-description">Chronological assessment history</p><div id="dashboard-recordings-list"></div>
         </section>
       </main>
       <div id="dashboard-quick-message" class="assessment-card" hidden><p>The Dashboard is available for registered mode.</p><a href="login.html">Return to Login</a></div>
     </div>
-    <nav id="dashboard-bottom-nav" class="dashboard-bottom-nav" aria-label="Main navigation" hidden><a href="dashboard.html?mode=registered" aria-current="page">Dashboard</a><a href="#new-recording-card" id="focus-recording">Assessment</a><a href="progress.html?mode=registered&source=dashboard">Analytics</a><a href="settings.html?mode=registered">Profile</a></nav>
     <script type="module" src="../src/dashboard.js"></script>
   </body>
 </html>

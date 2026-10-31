@@ -1,9 +1,12 @@
 import { assessmentMode, assessmentUrl, setupAvatar } from './assessment.js';
 import { calculateAssessment, interpretScore } from './scoring.js';
-import { currentRecording, readHistory, previousRecording, saveRecording } from './result-history.js';
-import { loadResultContext, recordingLabel } from './result-context.js';
+import { currentRecording, previousRecording, markRecordingSaved } from './result-history.js';
+import { saveRecording as saveDatabaseRecording, getRecordings, getRecordingById } from './database.js';
+import { createRecordingFinisher } from './recording-persistence.js';
+import { loadResultContext, loadDatabaseResultContext, historicalResult, recordingLabel } from './result-context.js';
 import { dateLabel } from './progress-data.js';
-import { getCurrentUser, getUserHistoryStorage } from './accounts.js';
+import { getCurrentUser } from './accounts.js';
+import { resultUrl } from './result-navigation.js';
 
 const quick = assessmentMode === 'quick';
 if (!quick && !await getCurrentUser()) {
@@ -14,10 +17,24 @@ const get = (id) => document.getElementById(id);
 let session;
 try { session = window.sessionStorage; } catch { session = { getItem: () => null }; }
 const recordId = quick ? null : new URLSearchParams(window.location.search).get('record');
-let historyStorage;
-try { historyStorage = quick ? null : await getUserHistoryStorage(); } catch { historyStorage = { getItem() { throw new Error('Storage unavailable'); } }; }
-const context = loadResultContext(session, historyStorage, recordId);
+let context;
+if (recordId !== null) {
+  get('results-status').textContent = 'Loading recording…';
+  get('finish-results').disabled = true;
+  try { context = await loadDatabaseResultContext(recordId, getRecordingById); }
+  catch (error) {
+    console.error('Unable to load historical recording:', error);
+    context = { historical: true, record: null, result: historicalResult({}), error: "We couldn't load this recording. Please return to the Dashboard and try again." };
+  }
+  get('results-status').textContent = '';
+  get('finish-results').disabled = false;
+} else {
+  context = loadResultContext(session);
+}
 const result = context.result;
+if (context.historical) {
+  document.querySelectorAll('[data-results-back], [aria-label="Exit assessment"]').forEach((control) => { control.hidden = true; });
+}
 let recordingName = '';
 try { recordingName = session.getItem('myhealth_recording_name')?.trim() || recordingName; } catch { /* Use the fallback. */ }
 get('recording-name').textContent = context.historical ? recordingLabel(context.record) : quick ? new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : recordingName || dateLabel(new Date());
@@ -64,8 +81,7 @@ if (result.alerts.length) {
     get('reading-notes').append(note);
   });
 }
-get('recommendations-link').href = assessmentUrl('scores-and-recommendations.html');
-if (context.historical && context.record) get('recommendations-link').href += `&record=${encodeURIComponent(context.record.id)}`;
+get('recommendations-link').href = resultUrl('scores-and-recommendations.html', assessmentMode, context.historical ? recordId : null);
 if (context.historical && !context.record) get('recommendations-link').hidden = true;
 get('focus-summary').textContent = score === null ? 'No scored domains available yet' : result.focusTargets.length ? `${result.focusTargets.length} focus target${result.focusTargets.length === 1 ? '' : 's'} highlighted` : 'No priority focus targets';
 result.focusTargets.slice(0, 3).forEach((domain) => {
@@ -88,11 +104,10 @@ if (quick) {
   get('progress-arrow').hidden = true;
   get('quick-progress-message').hidden = false;
 } else {
-  progress.href = assessmentUrl('progress.html');
-  if (context.historical) progress.href += '&source=dashboard';
+  progress.href = resultUrl('progress.html', assessmentMode, context.historical ? recordId : null);
   get('trend-details').hidden = false;
   try {
-    const previous = previousRecording(readHistory(historyStorage).filter((entry) => entry && String(entry.id) !== String(recording?.id) && (!context.historical || Date.parse(entry.date) < Date.parse(recording?.date))));
+    const previous = previousRecording((await getRecordings()).filter((entry) => String(entry.id) !== String(recording?.id) && (!context.historical || Date.parse(entry.date) < Date.parse(recording?.date))));
     if (score === null) {
       get('trend-delta').textContent = '—';
       get('trend-context').textContent = 'Add scored answers to compare recordings';
@@ -109,23 +124,34 @@ if (quick) {
       get('trend-end').setAttribute('cy', String(endY));
       get('trend-visual').hidden = false;
     }
-  } catch {
+  } catch (error) {
+    console.error('Unable to load the Results trend preview:', error);
     get('trend-context').textContent = 'Saved history is unavailable';
   }
 }
 get('finish-results').textContent = context.historical ? 'Back to Dashboard' : quick ? 'Finish' : 'Finish & Save to Dashboard';
 let finishing = false;
+const finishRecording = createRecordingFinisher(recording, saveDatabaseRecording);
 get('finish-results').addEventListener('click', async () => {
   if (finishing) return;
   if (context.historical) { window.location.href = assessmentUrl('dashboard.html'); return; }
   if (quick) { window.location.href = assessmentUrl('login.html'); return; }
+  if (recording.savedRecordId) { window.location.href = assessmentUrl('dashboard.html'); return; }
+  finishing = true;
+  get('finish-results').disabled = true;
+  get('finish-results').setAttribute('aria-busy', 'true');
+  get('results-status').textContent = '';
   try {
     if (!await getCurrentUser()) { window.location.replace('login.html'); return; }
-    saveRecording(historyStorage, recording);
-    finishing = true;
+    const saved = await finishRecording();
+    markRecordingSaved(recording, saved, session);
     window.location.href = assessmentUrl('dashboard.html');
-  } catch {
-    get('results-status').textContent = 'This recording could not be saved. Your existing history has not been replaced. Please allow browser storage and try again.';
+  } catch (error) {
+    console.error('Failed to finish saving the recording:', error);
+    get('results-status').textContent = "We couldn't save this recording. Please try again.";
+    finishing = false;
+    get('finish-results').disabled = false;
+    get('finish-results').removeAttribute('aria-busy');
   }
 });
 document.querySelectorAll('[data-results-back]').forEach((button) => {

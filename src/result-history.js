@@ -1,25 +1,8 @@
 import { domainRecommendation } from './scoring.js';
 
-// History is separate from scoring so viewing results never saves a recording.
-export function readHistory(storage) {
-  const raw = storage.getItem('myhealth_history');
-  if (raw === null) return [];
-  const history = JSON.parse(raw);
-  if (!Array.isArray(history)) throw new Error('Recording history is not a list.');
-  return history;
-}
-
 export function previousRecording(history) {
   return history.filter((record) => record && typeof record.overallScore === 'number' && Number.isFinite(record.overallScore) && record.overallScore >= 0 && record.overallScore <= 10 && Number.isFinite(Date.parse(record.date)))
     .sort((a, b) => Date.parse(b.date) - Date.parse(a.date))[0] ?? null;
-}
-
-export function saveRecording(storage, record) {
-  // Re-read on click to preserve records added after this page was opened.
-  const history = readHistory(storage);
-  if (!history.some((entry) => entry?.id === record.id)) {
-    storage.setItem('myhealth_history', JSON.stringify([...history, record]));
-  }
 }
 
 export function createRecording(result, name, date = new Date(), id = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`) {
@@ -38,7 +21,7 @@ export function createRecording(result, name, date = new Date(), id = `${Date.no
 }
 
 // Share the unsaved result's identity across Results and Progress. Only session
-// metadata is written here; saveRecording remains the only history writer.
+// metadata is written here; completed recordings are persisted only in Supabase.
 export function currentRecording(result, name, session, now = new Date()) {
   const record = createRecording(result, name, now);
   const signature = JSON.stringify([name, record.overallScore, record.completeness, record.domainScores, record.answers]);
@@ -47,6 +30,7 @@ export function currentRecording(result, name, session, now = new Date()) {
     if (previous?.signature === signature && typeof previous.id === 'string' && Number.isFinite(Date.parse(previous.date))) {
       record.id = previous.id;
       record.date = previous.date;
+      if (typeof previous.savedRecordId === 'string') record.savedRecordId = previous.savedRecordId;
     } else {
       session.setItem('myhealth_current_result_identity', JSON.stringify({ signature, id: record.id, date: record.date }));
     }
@@ -55,4 +39,12 @@ export function currentRecording(result, name, session, now = new Date()) {
     try { session.setItem('myhealth_current_result_identity', JSON.stringify({ signature, id: record.id, date: record.date })); } catch { /* Keep this in-memory identity. */ }
   }
   return record;
+}
+
+export function markRecordingSaved(record, databaseRecord, session) {
+  record.savedRecordId = databaseRecord.id;
+  try {
+    const identity = JSON.parse(session.getItem('myhealth_current_result_identity'));
+    if (identity?.id === record.id) session.setItem('myhealth_current_result_identity', JSON.stringify({ ...identity, savedRecordId: databaseRecord.id }));
+  } catch { /* Saving the database row must not depend on draft metadata storage. */ }
 }

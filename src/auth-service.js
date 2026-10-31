@@ -15,10 +15,6 @@ export function authErrorMessage(error) {
 // Production uses the single client exported by supabase.js.
 export function createAuthService(client, options = {}) {
   const sessionStorage = () => options.sessionStorage ?? globalThis.sessionStorage;
-  const localStorage = () => options.localStorage ?? globalThis.localStorage;
-  let activeId = null;
-  // Keep callbacks synchronous: do not call other Auth methods inside this hook.
-  client.auth.onAuthStateChange((_event, session) => { activeId = session?.user?.id ?? null; });
 
   function ownAssessment(user) {
     const session = sessionStorage();
@@ -31,11 +27,10 @@ export function createAuthService(client, options = {}) {
   async function getCurrentUser() {
     try {
       const { data, error } = await client.auth.getUser();
-      if (error || !data?.user) { activeId = null; return null; }
-      activeId = data.user.id;
+      if (error || !data?.user) return null;
       try { ownAssessment(data.user); } catch { /* Auth does not depend on draft storage. */ }
       return data.user;
-    } catch { activeId = null; return null; }
+    } catch { return null; }
   }
   async function registerUser(details) {
     const username = details.username.trim();
@@ -53,14 +48,12 @@ export function createAuthService(client, options = {}) {
     const { data, error } = await client.auth.signInWithPassword({ email: email.trim(), password });
     if (error) throw new Error(authErrorMessage(error));
     if (!data?.session || !data?.user) throw new Error('Sign in did not create an authenticated session. Please try again.');
-    activeId = data.user.id;
     try { ownAssessment(data.user); } catch { /* Keep valid Auth session. */ }
     return data.user;
   }
   async function logoutUser() {
     const { error } = await client.auth.signOut();
     if (error) throw new Error(authErrorMessage(error));
-    activeId = null;
     try {
       clearAssessment(sessionStorage());
       sessionStorage().removeItem('myhealth_assessment_owner');
@@ -79,29 +72,5 @@ export function createAuthService(client, options = {}) {
     if (error) throw new Error(authErrorMessage(error));
     return data.user;
   }
-  async function getUserHistoryStorage() {
-    const user = await getCurrentUser();
-    if (!user) throw new Error('Please sign in to view saved recordings.');
-    const key = getUserHistoryKey(user.id);
-    const storage = localStorage();
-    function authorize(logicalKey) {
-      if (logicalKey !== 'myhealth_history' || activeId !== user.id) throw new Error('The signed-in account has changed. Please sign in again.');
-    }
-    return {
-      getItem(logicalKey) { authorize(logicalKey); return storage.getItem(key); },
-      setItem(logicalKey, value) { authorize(logicalKey); storage.setItem(key, value); },
-    };
-  }
-  async function getCurrentUserHistory() {
-    const storage = await getUserHistoryStorage();
-    const raw = storage.getItem('myhealth_history');
-    const history = raw === null ? [] : JSON.parse(raw);
-    if (!Array.isArray(history)) throw new Error('Saved history could not be read.');
-    return history;
-  }
-  return { getCurrentUser, registerUser, loginUser, logoutUser, updateCurrentUser, getUserHistoryStorage, getCurrentUserHistory };
-}
-export function getUserHistoryKey(userId) {
-  if (!userId || typeof userId !== 'string') throw new Error('An authenticated user is required.');
-  return `myhealth_history_${userId}`;
+  return { getCurrentUser, registerUser, loginUser, logoutUser, updateCurrentUser };
 }

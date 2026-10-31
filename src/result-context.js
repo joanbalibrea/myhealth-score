@@ -1,5 +1,4 @@
 import { calculateAssessment, DOMAIN_INFO, interpretScore } from './scoring.js';
-import { readHistory } from './result-history.js';
 import { validScore, dateLabel } from './progress-data.js';
 
 // Historical views use saved scores only. Older records need no answer snapshot.
@@ -22,14 +21,19 @@ export function historicalResult(record) {
     recommendations: record.recommendations && typeof record.recommendations === 'object' ? record.recommendations : {},
   };
 }
-export function loadResultContext(session, historyStorage, recordId) {
-  if (!recordId) return { historical: false, result: calculateAssessment(session), record: null, error: null };
-  try {
-    const record = readHistory(historyStorage).find((record) => record && String(record.id) === recordId && typeof record.date === 'string' && Number.isFinite(Date.parse(record.date)));
-    if (record) return { historical: true, result: historicalResult(record), record, error: null };
-  } catch { /* Use an explicit unavailable view, never the active assessment. */ }
-  return { historical: true, result: historicalResult({}), record: null, error: 'This saved recording is unavailable. Return to the Dashboard to choose another recording.' };
+export function loadResultContext(session) {
+  return { historical: false, result: calculateAssessment(session), record: null, error: null };
 }
 export function recordingLabel(record) {
   return typeof record?.name === 'string' && record.name.trim() ? record.name.trim() : record?.date ? dateLabel(record.date) : 'Recording unavailable';
+}
+
+export async function loadDatabaseResultContext(recordId, getRecordingById) {
+  const record = await getRecordingById(recordId);
+  return {
+    historical: true,
+    result: historicalResult(record ?? {}),
+    record,
+    error: record ? null : 'This recording could not be found or you do not have access to it.',
+  };
 }
